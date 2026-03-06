@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { db, storage } from "../firebase/config";
 import { collection, addDoc, getDocs } from "firebase/firestore";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
@@ -19,71 +19,61 @@ function AddJob() {
   const [addNotes, setAddNotes] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const navigate = useNavigate();
 
-  // Generate automated Job Number on mount
   useEffect(() => {
     const generateJobNumber = async () => {
       try {
         const date = new Date();
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         const currentMonthName = monthNames[date.getMonth()];
         const currentYear = date.getFullYear();
-
         const suffix = `-${currentMonthName}-${currentYear}`;
 
-        // Fetch all jobs to count how many exist for THIS month
         const snapshot = await getDocs(collection(db, "jobs"));
         const jobsThisMonth = snapshot.docs
           .map(doc => doc.data().jobNumber)
           .filter(num => num && num.endsWith(suffix));
 
-        // Format to minimum 2 digits (01, 02, etc)
         const nextId = String(jobsThisMonth.length + 1).padStart(2, '0');
-        
         setJobNumber(`${nextId}${suffix}`);
       } catch (error) {
-        console.error("DEBUG: Error generating job number", error);
-        setJobNumber("Error-Generating");
+        setJobNumber("ERR-GEN");
       }
     };
-
     generateJobNumber();
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("DEBUG: Submit started");
-
-    if (!jobNumber || jobNumber === "Loading..." || jobNumber.startsWith("Error") || !clientCompanyName || !clientName || !labelSize || !quantity) {
-      toast.warn("Please wait for Job Number to generate and fill all fields!");
+    if (!clientCompanyName || !clientName || !labelSize || !quantity) {
+      toast.warn("Please fill all required fields.");
       return;
     }
 
     setIsSubmitting(true);
     try {
       let imageUrl = "";
-
-      // 1. Upload image if selected
       if (imageFile) {
-        console.log("DEBUG: Staring image upload...", imageFile.name);
-        try {
-          const fileRef = ref(storage, `job-images/${jobNumber}_${imageFile.name}`);
-          const uploadResult = await uploadBytes(fileRef, imageFile);
-          console.log("DEBUG: Upload success", uploadResult);
-          imageUrl = await getDownloadURL(fileRef);
-          console.log("DEBUG: Image URL retrieved", imageUrl);
-        } catch (uploadError) {
-          console.error("DEBUG: IMAGE UPLOAD FAILED", uploadError);
-          toast.error("Image upload fail ho gaya! Kripya storage rules check karein.");
-          setIsSubmitting(false);
-          return; // Stop if image upload fails
-        }
+        const storageRef = ref(storage, `job-images/${jobNumber}_${imageFile.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, imageFile);
+
+        imageUrl = await new Promise((resolve, reject) => {
+          uploadTask.on('state_changed', 
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              setUploadProgress(progress);
+            }, 
+            (error) => reject(error), 
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => resolve(downloadURL));
+            }
+          );
+        });
       }
 
-      // 2. Save to Firestore
-      console.log("DEBUG: Adding document to Firestore...");
-      const docData = {
+      await addDoc(collection(db, "jobs"), {
         jobNumber,
         clientCompanyName,
         clientName,
@@ -98,163 +88,119 @@ function AddJob() {
         addNotes,
         imageUrl,
         createdAt: new Date().toISOString()
-      };
+      });
 
-      const docRef = await addDoc(collection(db, "jobs"), docData);
-      console.log("DEBUG: Document added with ID", docRef.id);
-      
-      toast.success("Job added successfully!");
+      toast.success("Job added successfully.");
       navigate("/"); 
     } catch (error) {
-      console.error("DEBUG: GENERAL ERROR SAVING JOB", error);
-      toast.error("Error adding job! Console check karein.");
+      toast.error(`Failed to add job: ${error.message}`);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: "500px", margin: "0 auto", padding: "20px" }}>
-      <h2>Add New Job</h2>
-      <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-        
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Job Number (Auto-Generated):</label>
-          <input 
-            type="text" 
-            value={jobNumber} 
-            readOnly
-            style={{ padding: "8px", backgroundColor: "#e9ecef", cursor: "not-allowed", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
-        </div>
+    <div className="page-entry" style={{ padding: "140px 20px 60px", maxWidth: "900px", margin: "0 auto" }}>
+      <div className="glass-card" style={{ padding: "60px", background: "rgba(15, 23, 42, 0.4)" }}>
+        <header style={{ marginBottom: "48px", textAlign: "center" }}>
+          <h1 style={{ fontSize: "2.8rem", fontWeight: 900, color: "#fff", marginBottom: "16px", letterSpacing: "-0.04em" }}>
+            Add <span style={{ color: "var(--primary)", textShadow: "0 0 30px var(--primary-glow)" }}>New Job</span>
+          </h1>
+          <p style={{ color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 500 }}>Register a new order into Sahajink</p>
+        </header>
 
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Client Company Name:</label>
-          <input 
-            type="text" 
-            value={clientCompanyName} 
-            onChange={(e) => setClientCompanyName(e.target.value)} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
-        </div>
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
+          
+          <section>
+            <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "24px" }}>
+              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 10px var(--primary-glow)" }}></span>
+              <h4 style={{ margin: 0, color: "#fff", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em" }}>Client Details</h4>
+            </div>
+            
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Job Number</label>
+                <input type="text" value={jobNumber} readOnly style={{ background: "rgba(255,255,255,0.02)", color: "var(--primary)", fontWeight: 900, borderStyle: "dashed" }} />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Client Company</label>
+                <input type="text" value={clientCompanyName} onChange={(e) => setClientCompanyName(e.target.value)} placeholder="e.g. Acme Corp" />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Contact Person</label>
+                <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Full Name" required />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Phone Number</label>
+                <input type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="+91 ..." />
+              </div>
+            </div>
+          </section>
 
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Client Name:</label>
-          <input 
-            type="text" 
-            value={clientName} 
-            onChange={(e) => setClientName(e.target.value)} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
-        </div>
+          <section>
+            <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "24px" }}>
+              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 10px var(--accent-glow)" }}></span>
+              <h4 style={{ margin: 0, color: "#fff", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em" }}>Specifications</h4>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Label Size</label>
+                <input type="text" value={labelSize} onChange={(e) => setLabelSize(e.target.value)} placeholder="e.g. 100x50mm" required />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Quantity</label>
+                <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Units" required />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Priority</label>
+                <select value={priority} onChange={(e) => setPriority(e.target.value)}>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Industry</label>
+                <input type="text" value={labelIndustry} onChange={(e) => setLabelIndustry(e.target.value)} placeholder="Pharma / FMCG" />
+              </div>
+            </div>
+          </section>
 
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Client Phone Number:</label>
-          <input 
-            type="tel" 
-            value={clientPhone} 
-            onChange={(e) => setClientPhone(e.target.value)} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
-        </div>
+          <section>
+            <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "24px" }}>
+              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--success)", boxShadow: "0 0 10px var(--success-glow)" }}></span>
+              <h4 style={{ margin: 0, color: "#fff", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em" }}>Documentation</h4>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Notes</label>
+                <textarea value={addNotes} onChange={(e) => setAddNotes(e.target.value)} placeholder="Special instructions..." style={{ minHeight: "120px" }} />
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Design Image</label>
+                <div style={{ padding: "40px", border: "2px dashed var(--border)", borderRadius: "20px", textAlign: "center", background: "rgba(255,255,255,0.01)", transition: "var(--transition)" }} onMouseOver={(e) => e.currentTarget.style.borderColor = "var(--primary)"} onMouseOut={(e) => e.currentTarget.style.borderColor = "var(--border)"}>
+                  <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} style={{ color: "var(--text-muted)" }} />
+                  {imageFile && <p style={{ fontSize: "0.9rem", color: "var(--success)", fontWeight: 800, marginTop: "15px" }}>SELECTED: {imageFile.name}</p>}
+                </div>
+              </div>
+            </div>
+          </section>
 
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Client Email:</label>
-          <input 
-            type="email" 
-            value={clientEmail} 
-            onChange={(e) => setClientEmail(e.target.value)} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Client Address:</label>
-          <textarea 
-            value={clientAddress} 
-            onChange={(e) => setClientAddress(e.target.value)} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px", minHeight: "60px" }}
-          />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Label Size:</label>
-          <input 
-            type="text" 
-            value={labelSize} 
-            onChange={(e) => setLabelSize(e.target.value)} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Label Quantity:</label>
-          <input 
-            type="number" 
-            value={quantity} 
-            onChange={(e) => setQuantity(e.target.value)} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Label Industry:</label>
-          <input 
-            type="text" 
-            value={labelIndustry} 
-            onChange={(e) => setLabelIndustry(e.target.value)} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Job Priority:</label>
-          <select 
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-            style={{ padding: "8px", borderRadius: "4px", border: "1px solid #ccc" }}
+          <button 
+            type="submit" 
+            disabled={isSubmitting}
+            className="btn-primary"
+            style={{ 
+              padding: "24px", 
+              fontSize: "1.1rem", 
+              marginTop: "20px",
+              boxShadow: isSubmitting ? "none" : "0 20px 40px var(--primary-glow)"
+            }}
           >
-            <option value="High">High</option>
-            <option value="Medium">Medium</option>
-            <option value="Low">Low</option>
-          </select>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Add Notes:</label>
-          <textarea 
-            value={addNotes} 
-            onChange={(e) => setAddNotes(e.target.value)} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px", minHeight: "80px" }}
-          />
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label>Label Design Image (Optional):</label>
-          <input 
-            type="file" 
-            accept="image/*"
-            onChange={(e) => setImageFile(e.target.files[0])} 
-            style={{ padding: "8px", border: "1px solid #ccc", borderRadius: "4px" }}
-          />
-        </div>
-
-        <button 
-          type="submit" 
-          disabled={isSubmitting}
-          style={{ 
-            padding: "10px", 
-            backgroundColor: "#28a745", 
-            color: "white", 
-            border: "none", 
-            borderRadius: "4px",
-            cursor: isSubmitting ? "not-allowed" : "pointer",
-            marginTop: "10px"
-          }}
-        >
-          {isSubmitting ? "Adding Job..." : "Add Job"}
-        </button>
-      </form>
+            {isSubmitting ? `UPLOADING (${Math.round(uploadProgress)}%)...` : "ADD JOB"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
