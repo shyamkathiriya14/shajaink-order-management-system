@@ -189,7 +189,7 @@ function Navbar() {
               }}
               className="w-full p-4 bg-[#ef4444]/10 text-[var(--danger)] rounded-[14px] border-[1.5px] border-[#ef4444]/20 font-bold flex items-center justify-center gap-3 mt-2"
             >
-              <span className="text-xl">⏻</span> AUTHORIZE LOGOUT
+              <span className="text-xl">⏻</span> Logout
             </button>
           </div>
         </div>
@@ -197,7 +197,7 @@ function Navbar() {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div className="fixed inset-0 w-full h-full bg-[#020617]/90 z-[9999] flex items-center justify-center backdrop-blur-xl p-4">
+        <div className="fixed inset-0 w-full h-full bg-[#0206172e] z-[9999] flex items-center justify-center backdrop-blur-md p-4">
           <div className="glass-card max-w-[400px] w-full p-8 md:p-10 text-center animate-fade-in-up">
             <h2 className="text-[var(--danger)] mb-4 text-2xl md:text-3xl font-bold">
               Logout Confirmation?

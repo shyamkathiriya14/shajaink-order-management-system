@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { db } from "../firebase/config";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 function JobCard({ job, onDelete, children }) {
@@ -123,7 +123,7 @@ function JobCard({ job, onDelete, children }) {
             </div>
           </div>
 
-          <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto mt-4 md:mt-0 pt-6 md:pt-0 border-t md:border-t-0 border-white/5 items-center md:items-end">
+          <div className="flex flex-col gap-3 w-full md:w-auto pt-6 md:pt-0 border-t md:border-t-0 border-white/5 items-center md:items-end">
             <div className="flex gap-2 w-full justify-start md:justify-end">
               <button
                 onClick={() => setShowEditModal(true)}
@@ -169,13 +169,13 @@ function JobCard({ job, onDelete, children }) {
                 onClick={() => setShowDeleteModal(false)}
                 className="flex-1 p-4 bg-transparent border-[1.5px] border-[var(--border)] text-white rounded-xl md:rounded-2xl font-bold cursor-pointer hover:bg-white/5 transition-all text-[0.7rem] uppercase tracking-widest"
               >
-                Keep Record
+                Cancel
               </button>
               <button
                 onClick={handleDelete}
                 className="btn-primary flex-1 p-4 rounded-xl md:rounded-2xl bg-[var(--danger)] border-none shadow-[0_15px_30px_rgba(239,68,68,0.25)] text-[0.7rem] uppercase tracking-widest font-bold"
               >
-                Terminate
+                Delete
               </button>
             </div>
           </div>
@@ -187,7 +187,7 @@ function JobCard({ job, onDelete, children }) {
           <div className="glass-card max-w-[850px] w-full p-6 md:p-10 max-h-[90vh] overflow-y-auto animate-fade-in-up">
             <div className="flex justify-between items-center mb-10">
               <h2 className="text-[var(--primary)] text-xl md:text-3xl font-black tracking-tight uppercase">
-                Edit Configuration
+                Edit Job Details
               </h2>
               <button
                 onClick={() => setShowEditModal(false)}
@@ -202,13 +202,13 @@ function JobCard({ job, onDelete, children }) {
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-2 h-2 rounded-full bg-[var(--primary)] shadow-[0_0_10px_var(--primary-glow)]"></div>
                   <h4 className="text-[0.7rem] text-white uppercase tracking-[0.2em] font-black">
-                    Client Profile
+                    Client Information
                   </h4>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Company Entity
+                      Company Name
                     </label>
                     <input
                       type="text"
@@ -224,7 +224,7 @@ function JobCard({ job, onDelete, children }) {
                   </div>
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Contact Authority
+                      Contact Name
                     </label>
                     <input
                       type="text"
@@ -241,7 +241,7 @@ function JobCard({ job, onDelete, children }) {
                   </div>
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Comms Stream (Phone)
+                      Phone Number
                     </label>
                     <input
                       type="tel"
@@ -257,7 +257,7 @@ function JobCard({ job, onDelete, children }) {
                   </div>
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Digital Mail (Email)
+                      Email Address
                     </label>
                     <input
                       type="email"
@@ -273,7 +273,7 @@ function JobCard({ job, onDelete, children }) {
                   </div>
                   <div className="flex flex-col gap-2.5 md:col-span-2">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Geographic Origin (Address)
+                      Address
                     </label>
                     <input
                       type="text"
@@ -294,13 +294,13 @@ function JobCard({ job, onDelete, children }) {
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-[0_0_10px_var(--accent-glow)]"></div>
                   <h4 className="text-[0.7rem] text-white uppercase tracking-[0.2em] font-black">
-                    Dimensions & Output
+                    Job Specifications
                   </h4>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Label Framework
+                      Label Size
                     </label>
                     <input
                       type="text"
@@ -317,7 +317,7 @@ function JobCard({ job, onDelete, children }) {
                   </div>
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Volume Count
+                      Quantity
                     </label>
                     <input
                       type="number"
@@ -331,7 +331,7 @@ function JobCard({ job, onDelete, children }) {
                   </div>
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Protocol Tier
+                      Priority
                     </label>
                     <select
                       className="w-full bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none cursor-pointer font-bold appearance-none"
@@ -347,7 +347,7 @@ function JobCard({ job, onDelete, children }) {
                   </div>
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Sector Class
+                      Industry
                     </label>
                     <input
                       type="text"
@@ -361,12 +361,29 @@ function JobCard({ job, onDelete, children }) {
                       }
                     />
                   </div>
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Used Paper
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
+                      value={editedJob.usedPaper || ""}
+                      onChange={(e) =>
+                        setEditedJob({
+                          ...editedJob,
+                          usedPaper: e.target.value,
+                        })
+                      }
+                      placeholder="e.g. Sona / JK"
+                    />
+                  </div>
                 </div>
               </section>
 
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                  Operational Directives (Notes)
+                  Notes
                 </label>
                 <textarea
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-5 rounded-xl focus:border-[var(--primary)] outline-none min-h-[120px] transition-all font-medium resize-none leading-relaxed"
@@ -383,13 +400,13 @@ function JobCard({ job, onDelete, children }) {
                   onClick={() => setShowEditModal(false)}
                   className="flex-1 p-5 bg-transparent border-[1.5px] border-[var(--border)] text-white rounded-xl md:rounded-2xl font-bold cursor-pointer hover:bg-white/5 transition-all text-[0.7rem] uppercase tracking-widest"
                 >
-                  Abandon
+                  Cancel
                 </button>
                 <button
                   type="submit"
                   className="btn-primary flex-1 p-5 rounded-xl md:rounded-2xl font-black text-[0.7rem] uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(0,112,255,0.25)]"
                 >
-                  Save Configuration
+                  Save Job
                 </button>
               </div>
             </form>

@@ -92,7 +92,7 @@ function JobDetails() {
     );
 
   return (
-    <div className="page-entry px-4 md:px-10 lg:px-20 pt-[100px] md:pt-[140px] pb-10 max-w-[1300px] mx-auto">
+    <div className="page-entry sm:px-4 md:px-10 lg:px-20 pt-[100px] md:pt-[140px] pb-10 max-w-[1300px] mx-auto">
       <Link
         to="/"
         className="inline-block mb-8 text-[var(--text-muted)] no-underline hover:text-white transition-colors font-black tracking-widest text-[0.7rem] uppercase"
@@ -102,11 +102,11 @@ function JobDetails() {
 
       <div className="glass-card overflow-hidden bg-[#020619]/60">
         <div className="flex flex-col lg:grid lg:grid-cols-[1fr_450px]">
-          <div className="p-6 md:p-12 lg:p-15 border-b lg:border-b-0 lg:border-r border-white/5">
+          <div className="p-4 sm:p-6 md:p-12 lg:p-15 border-b lg:border-b-0 lg:border-r border-white/5">
             <header className="mb-10 md:mb-15">
               <div className="flex flex-wrap items-center gap-4 mb-4">
                 <span className="px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] rounded-md text-[0.65rem] md:text-[0.7rem] font-black tracking-widest uppercase border border-[var(--primary)]/20">
-                  JOB SEGMENT
+                  JOB DETAILS
                 </span>
                 <span className="text-[var(--text-muted)] opacity-50 text-sm md:text-base">
                   •
@@ -126,7 +126,7 @@ function JobDetails() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12 mb-10 md:mb-15">
               <div className="flex flex-col gap-2">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-50">
-                  Operational Status
+                  Job Status
                 </label>
                 <div className="flex flex-col gap-4">
                   <div className="flex items-center gap-3">
@@ -155,13 +155,13 @@ function JobDetails() {
               </div>
               <div className="flex flex-col gap-2">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-50">
-                  Priority Protocol
+                  Priority
                 </label>
                 <p
                   className="text-xl md:text-2xl font-black text-white uppercase tracking-tight"
                   style={{ color: getPriorityColor(job.priority) }}
                 >
-                  {job.priority} Level
+                  {job.priority}
                 </p>
               </div>
             </div>
@@ -170,12 +170,12 @@ function JobDetails() {
               <div className="p-6 md:p-8 bg-white/[0.02] border border-white/5 rounded-2xl md:rounded-3xl">
                 <h4 className="text-[var(--primary)] text-[0.7rem] md:text-[0.75rem] font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]"></span>
-                  Specifications
+                  Job Specifications
                 </h4>
                 <div className="flex flex-col gap-6">
                   <div>
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
-                      Architecture
+                      Label Size
                     </label>
                     <p className="text-lg md:text-xl font-bold text-white mb-0">
                       {job.labelSize}
@@ -183,18 +183,26 @@ function JobDetails() {
                   </div>
                   <div>
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
-                      Volume Output
+                      Used Paper
+                    </label>
+                    <p className="text-lg md:text-xl font-bold text-white mb-0">
+                      {job.usedPaper || "Not Specified"}
+                    </p>
+                  </div>
+                  <div>
+                    <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
+                      Quantity
                     </label>
                     <p className="text-2xl md:text-3xl font-black text-[var(--primary)] mb-0">
                       {job.quantity?.toLocaleString()}{" "}
                       <span className="text-sm font-medium opacity-50">
-                        UNIT_BLOCKS
+                        UNITS
                       </span>
                     </p>
                   </div>
                   <div>
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
-                      Industry Sector
+                      Industry
                     </label>
                     <p className="text-lg md:text-xl font-bold text-white mb-0">
                       {job.labelIndustry || "General Industrial"}
@@ -206,12 +214,12 @@ function JobDetails() {
               <div className="p-6 md:p-8 bg-white/[0.02] border border-white/5 rounded-2xl md:rounded-3xl">
                 <h4 className="text-[var(--accent)] text-[0.7rem] md:text-[0.75rem] font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]"></span>
-                  Comms Intel
+                  Client Details
                 </h4>
                 <div className="flex flex-col gap-6">
                   <div>
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
-                      Auth. Contact
+                      Contact Name
                     </label>
                     <p className="text-lg md:text-xl font-bold text-white mb-0">
                       {job.clientName}
@@ -219,7 +227,7 @@ function JobDetails() {
                   </div>
                   <div>
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
-                      Direct Comms
+                      Contact Info
                     </label>
                     <p className="text-lg font-bold text-white mb-0">
                       {job.clientPhone || "STREAMS_OFFLINE"}
@@ -230,7 +238,7 @@ function JobDetails() {
                   </div>
                   <div>
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
-                      Base Origin
+                      Address
                     </label>
                     <p className="text-base font-bold text-white mb-0 leading-snug">
                       {job.clientAddress || "UNDEFINED_LOCATION"}
@@ -242,7 +250,7 @@ function JobDetails() {
 
             <div className="mt-10 md:mt-15 p-6 md:p-8 bg-white/[0.02] border border-white/5 rounded-2xl md:rounded-3xl">
               <h4 className="text-white text-[0.7rem] font-black uppercase tracking-[0.2em] mb-5">
-                Operational Directives
+                Notes
               </h4>
               <p className="text-[var(--text-muted)] text-base md:text-lg leading-relaxed font-medium whitespace-pre-wrap">
                 {job.addNotes ||
@@ -254,7 +262,7 @@ function JobDetails() {
           <div className="p-6 md:p-12 lg:p-15 bg-white/[0.01]">
             <h4 className="text-[var(--success)] text-[0.7rem] font-black uppercase tracking-[0.2em] mb-8 flex items-center gap-3">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--success)]"></span>
-              Visual Interface
+              Job Image
             </h4>
 
             {job.imageUrl ? (
@@ -286,7 +294,7 @@ function JobDetails() {
             <div className="mt-10 md:mt-15">
               <Link to={`/`} className="no-underline">
                 <button className="btn-primary w-full py-5 md:py-6 text-base font-black uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(0,112,255,0.2)]">
-                  RETURN TO CONSOLE
+                  RETURN TO DASHBOARD
                 </button>
               </Link>
             </div>

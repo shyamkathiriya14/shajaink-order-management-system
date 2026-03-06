@@ -10,6 +10,7 @@ const Login = () => {
   const handleLogin = (e) => {
     e.preventDefault();
     if (username === "admin" && password === "sahaj@8485") {
+      localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("isAdmin", "true");
       toast.success("Welcome, Commander. System Access Granted.");
       navigate("/");
@@ -69,7 +70,7 @@ const Login = () => {
             type="submit"
             className="btn-primary w-full py-5 md:py-6 text-base md:text-lg font-black uppercase tracking-[0.25em] shadow-[0_20px_50px_rgba(0,112,255,0.3)] mt-4 md:mt-6 group relative overflow-hidden"
           >
-            <span className="relative z-10 font-black">Authorize</span>
+            <span className="relative z-10 font-black">Login</span>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
           </button>
         </form>

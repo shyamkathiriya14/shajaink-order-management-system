@@ -2,11 +2,14 @@ import { useEffect, useState } from "react";
 import { db } from "../firebase/config";
 import { collection, onSnapshot } from "firebase/firestore";
 import JobCard from "../components/JobCard";
+import Pagination from "../components/Pagination";
 
 function Home() {
   const [jobs, setJobs] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
+  const [currentPage, setCurrentPage] = useState(1);
+  const jobsPerPage = 5;
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "jobs"), (snapshot) => {
@@ -20,13 +23,14 @@ function Home() {
   }, []);
 
   const filteredJobs = jobs.filter((job) => {
+    const normalizedSearch = searchTerm.toLowerCase().trim();
     const matchesSearch =
       (job.jobNumber &&
-        job.jobNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        job.jobNumber.toLowerCase().includes(normalizedSearch)) ||
       (job.clientName &&
-        job.clientName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        job.clientName.toLowerCase().includes(normalizedSearch)) ||
       (job.clientCompanyName &&
-        job.clientCompanyName.toLowerCase().includes(searchTerm.toLowerCase()));
+        job.clientCompanyName.toLowerCase().includes(normalizedSearch));
 
     const matchesStatus = filterStatus === "All" || job.status === filterStatus;
     return matchesSearch && matchesStatus;
@@ -40,8 +44,18 @@ function Home() {
       .length,
   };
 
+  // Pagination Logic
+  const totalPages = Math.ceil(filteredJobs.length / jobsPerPage);
+  const indexOfLastJob = currentPage * jobsPerPage;
+  const indexOfFirstJob = indexOfLastJob - jobsPerPage;
+  const currentJobs = filteredJobs.slice(indexOfFirstJob, indexOfLastJob);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, filterStatus]);
+
   return (
-    <div className="page-entry px-4 md:px-10 lg:px-15 pt-[100px] md:pt-[140px] pb-10 max-w-[1500px] mx-auto">
+    <div className="page-entry sm:px-4 md:px-10 lg:px-15 pt-[100px] md:pt-[140px] pb-10 max-w-[1500px] mx-auto">
       {/* Dashboard Summary Widgets */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-12 md:mb-20">
         {[
@@ -116,7 +130,10 @@ function Home() {
               type="text"
               placeholder="Search ID or Company..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full pl-12 h-12 md:h-14 bg-white/5 border-[1.5px] border-[var(--border)] text-white rounded-xl md:rounded-2xl focus:border-[var(--primary)] outline-none transition-all placeholder:text-[var(--text-muted)] font-medium"
             />
             <span className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40 text-lg">
@@ -126,7 +143,10 @@ function Home() {
 
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
+            onChange={(e) => {
+              setFilterStatus(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full sm:w-[200px] h-12 md:h-14 bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white px-4 md:px-5 rounded-xl md:rounded-2xl cursor-pointer outline-none focus:border-[var(--primary)] transition-all font-bold appearance-none"
           >
             <option value="All">All Statuses</option>
@@ -140,13 +160,19 @@ function Home() {
 
       <div className="grid gap-4 md:gap-5">
         {filteredJobs.length > 0 ? (
-          filteredJobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              onDelete={(id) => setJobs(jobs.filter((j) => j.id !== id))}
-            />
-          ))
+          currentJobs.length > 0 ? (
+            currentJobs.map((job) => (
+              <JobCard
+                key={job.id}
+                job={job}
+                onDelete={(id) => setJobs(jobs.filter((j) => j.id !== id))}
+              />
+            ))
+          ) : (
+            <div className="text-center py-10 opacity-50 font-bold tracking-widest text-[var(--text-muted)]">
+              SYNCING PAGE...
+            </div>
+          )
         ) : (
           <div className="glass-card p-16 md:p-32 text-center bg-slate-900/20 border-[1.5px] border-dashed border-[var(--border)] animate-fade-in rounded-[24px]">
             <div className="text-5xl md:text-[5rem] mb-4 md:mb-8 opacity-20">
@@ -162,11 +188,17 @@ function Home() {
                 setFilterStatus("All");
               }}
             >
-              RESET DASHBOARD
+              Reset Search
             </button>
           </div>
         )}
       </div>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      />
     </div>
   );
 }

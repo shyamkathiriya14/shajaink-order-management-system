@@ -15,6 +15,7 @@ function AddJob() {
   const [labelSize, setLabelSize] = useState("");
   const [quantity, setQuantity] = useState("");
   const [labelIndustry, setLabelIndustry] = useState("");
+  const [usedPaper, setUsedPaper] = useState("");
   const [priority, setPriority] = useState("Medium");
   const [addNotes, setAddNotes] = useState("");
   const [imageFile, setImageFile] = useState(null);
@@ -103,6 +104,7 @@ function AddJob() {
         labelSize,
         quantity: Number(quantity),
         labelIndustry,
+        usedPaper,
         status: "Pending",
         priority,
         addNotes,
@@ -120,14 +122,14 @@ function AddJob() {
   };
 
   return (
-    <div className="page-entry px-4 md:px-10 lg:px-20 pt-[100px] md:pt-[140px] pb-10 max-w-[1000px] mx-auto">
+    <div className="page-entry sm:px-4 md:px-10 lg:px-20 pt-[100px] md:pt-[140px] pb-10 max-w-[1000px] mx-auto">
       <div className="glass-card p-6 md:p-15 bg-[#020619]/60">
         <header className="mb-10 md:mb-12 text-center">
           <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-3 md:mb-4 tracking-tight">
-            Register <span className="blue-gradient-text">Stream Job</span>
+            Add New <span className="blue-gradient-text">Job</span>
           </h1>
           <p className="text-[var(--text-muted)] text-base md:text-lg font-medium">
-            Initialize a new industrial print protocol
+            Fill in the details below to create a new job
           </p>
         </header>
 
@@ -136,14 +138,14 @@ function AddJob() {
             <div className="flex items-center gap-3 mb-6 md:mb-8">
               <div className="w-2 h-2 rounded-full bg-[var(--primary)] shadow-[0_0_10px_var(--primary-glow)]"></div>
               <h4 className="text-[0.7rem] md:text-[0.75rem] text-white uppercase tracking-[0.2em] font-black">
-                Entity Profile
+                Client Information
               </h4>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Job ID (Auto)
+                  Job Number (Auto)
                 </label>
                 <input
                   type="text"
@@ -154,7 +156,7 @@ function AddJob() {
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Company Entity
+                  Company Name
                 </label>
                 <input
                   type="text"
@@ -166,7 +168,7 @@ function AddJob() {
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Primary Contact
+                  Contact Name
                 </label>
                 <input
                   type="text"
@@ -179,7 +181,7 @@ function AddJob() {
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Comms Stream (Phone)
+                  Phone Number
                 </label>
                 <input
                   type="tel"
@@ -189,6 +191,29 @@ function AddJob() {
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
                 />
               </div>
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Email Address
+                </label>
+                <input
+                  type="email"
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  placeholder="contact@entity.com"
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
+                />
+              </div>
+              <div className="flex flex-col gap-2.5 md:col-span-2">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Address
+                </label>
+                <textarea
+                  value={clientAddress}
+                  onChange={(e) => setClientAddress(e.target.value)}
+                  placeholder="Full Address Details"
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30 resize-none h-[100px]"
+                />
+              </div>
             </div>
           </section>
 
@@ -196,13 +221,13 @@ function AddJob() {
             <div className="flex items-center gap-3 mb-6 md:mb-8">
               <div className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-[0_0_10px_var(--accent-glow)]"></div>
               <h4 className="text-[0.7rem] md:text-[0.75rem] text-white uppercase tracking-[0.2em] font-black">
-                Technical Specs
+                Job Specifications
               </h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Label Framework
+                  Label Size
                 </label>
                 <input
                   type="text"
@@ -215,7 +240,7 @@ function AddJob() {
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Volume Count
+                  Quantity
                 </label>
                 <input
                   type="number"
@@ -228,7 +253,7 @@ function AddJob() {
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Priority protocol
+                  Priority
                 </label>
                 <select
                   value={priority}
@@ -242,13 +267,25 @@ function AddJob() {
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Sector Class
+                  Industry
                 </label>
                 <input
                   type="text"
                   value={labelIndustry}
                   onChange={(e) => setLabelIndustry(e.target.value)}
                   placeholder="Pharma / FMCG"
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
+                />
+              </div>
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Used Paper
+                </label>
+                <input
+                  type="text"
+                  value={usedPaper}
+                  onChange={(e) => setUsedPaper(e.target.value)}
+                  placeholder="e.g. Sona / JK / Chromo"
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
                 />
               </div>
@@ -259,13 +296,13 @@ function AddJob() {
             <div className="flex items-center gap-3 mb-6 md:mb-8">
               <div className="w-2 h-2 rounded-full bg-[var(--success)] shadow-[0_0_10px_var(--success-glow)]"></div>
               <h4 className="text-[0.7rem] md:text-[0.75rem] text-white uppercase tracking-[0.2em] font-black">
-                Data Attachment
+                Attachments
               </h4>
             </div>
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Directives (Notes)
+                  Notes
                 </label>
                 <textarea
                   value={addNotes}
@@ -276,7 +313,7 @@ function AddJob() {
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Visual Blueprint
+                  Job Image
                 </label>
                 <div className="relative group cursor-pointer">
                   <input
@@ -290,7 +327,7 @@ function AddJob() {
                       📸
                     </span>
                     <p className="text-[var(--text-muted)] font-medium text-sm md:text-base">
-                      Upload Design Interface
+                      Click or drag to upload image
                     </p>
                     <p className="text-[0.6rem] md:text-[0.65rem] text-[var(--text-muted)] uppercase tracking-widest mt-2">
                       Supports JPG, PNG, WEBP
@@ -323,8 +360,8 @@ function AddJob() {
           >
             <span className="relative z-10">
               {isSubmitting
-                ? `Transmitting (${Math.round(uploadProgress)}%)...`
-                : "Initialize Job"}
+                ? `Uploading (${Math.round(uploadProgress)}%)...`
+                : "Add Job"}
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
           </button>
