@@ -2,10 +2,13 @@ import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { db } from "../firebase/config";
 import { collection, onSnapshot } from "firebase/firestore";
+import logo from "../assets/sahajink-logo.png";
+import Logout from "../assets/logout-icon.png";
 
 function Navbar() {
   const [counts, setCounts] = useState({
     pending: 0,
+    upcoming: 0,
     running: 0,
     completed: 0,
   });
@@ -19,6 +22,8 @@ function Navbar() {
         pending: allJobs.filter(
           (j) => j.status?.toLowerCase() === "pending" || !j.status,
         ).length,
+        upcoming: allJobs.filter((j) => j.status?.toLowerCase() === "upcoming")
+          .length,
         running: allJobs.filter((j) => j.status?.toLowerCase() === "running")
           .length,
         completed: allJobs.filter(
@@ -68,20 +73,21 @@ function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-4 md:top-[30px] left-1/2 -translate-x-1/2 w-[calc(100%-32px)] md:w-[calc(100%-60px)] max-w-[1380px] z-[1000]">
+      <nav className="fixed top-4 md:top-[30px] left-1/2 -translate-x-1/2 w-[calc(100%-32px)] md:w-[calc(100%-60px)] max-w-[1500px] z-[1000]">
         <div className="glass-card flex justify-between items-center px-5 md:px-8 py-3 md:py-3.5 rounded-[20px] md:rounded-[24px] bg-[#020619]/80">
           {/* Elite Brand */}
           <Link to="/" className="no-underline flex items-center gap-3 group">
-            <div className="w-8 h-8 md:w-9 md:h-9 bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] rounded-[10px] flex items-center justify-center font-black text-white text-lg md:text-xl shadow-[0_0_20px_var(--primary-glow)] group-hover:scale-110 transition-transform">
-              S
+            <div>
+              <img
+                src={logo}
+                alt="Logo"
+                className="w-[130px] sm:w-[160px] h-auto"
+              />
             </div>
-            <span className="text-base md:text-lg font-extrabold tracking-[0.15em] text-white [text-shadow:0_0_15px_rgba(255,255,255,0.2)]">
-              SAHAJINK
-            </span>
           </Link>
 
           {/* Mobile Menu Toggle */}
-          <div className="flex items-center gap-2 md:hidden">
+          <div className="flex items-center gap-2 xl:hidden">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 text-white text-2xl focus:outline-none"
@@ -91,15 +97,21 @@ function Navbar() {
           </div>
 
           {/* Desktop Links */}
-          <div className="hidden md:flex gap-2 items-center">
+          <div className="hidden xl:flex gap-2 items-center">
             <NavLink to="/" className={navItemStyle}>
               All Jobs
             </NavLink>
             <NavLink to="/pending" className={navItemStyle}>
-              Pending
+              Pending{" "}
+              <span className="text-[var(--accent)] [box-shadow:0_0_10px_var(--accent-glow)] px-1.5 py-0.5 rounded-md bg-[var(--accent)]/10 text-[0.7rem]">
+                {counts.pending}
+              </span>
             </NavLink>
             <NavLink to="/upcoming" className={navItemStyle}>
-              Upcoming
+              Upcoming{" "}
+              <span className="text-[var(--primary)] [box-shadow:0_0_10px_var(--primary-glow)] px-1.5 py-0.5 rounded-md bg-[var(--primary)]/10 text-[0.7rem]">
+                {counts.upcoming}
+              </span>
             </NavLink>
             <NavLink to="/running" className={navItemStyle}>
               Running{" "}
@@ -108,13 +120,16 @@ function Navbar() {
               </span>
             </NavLink>
             <NavLink to="/completed" className={navItemStyle}>
-              Completed
+              Completed{" "}
+              <span className="text-[var(--success)] [box-shadow:0_0_10px_var(--success-glow)] px-1.5 py-0.5 rounded-md bg-[var(--success)]/10 text-[0.7rem]">
+                {counts.completed}
+              </span>
             </NavLink>
 
             <div className="w-[1.5px] h-[30px] bg-[var(--border)] mx-3"></div>
 
             <Link to="/add-job" className="no-underline">
-              <button className="btn-primary px-5 py-2.5 text-[0.7rem] rounded-[12px]">
+              <button className="btn-primary px-5 py-2.5 text-[12px] rounded-[12px]">
                 + ADD JOB
               </button>
             </Link>
@@ -124,14 +139,16 @@ function Navbar() {
               className="p-2.5 bg-[#ef4444]/5 text-[var(--danger)] rounded-[12px] border-[1.5px] border-[#ef4444]/10 ml-1 cursor-pointer transition-all duration-300 hover:bg-[#ef4444]/10"
               title="Logout"
             >
-              <span className="text-lg">⏻</span>
+              <span className="text-lg">
+                <img src={Logout} alt="Logout" className="w-[20px] h-[20px]" />
+              </span>
             </button>
           </div>
         </div>
 
         {/* Mobile Sidebar / Drawer */}
         <div
-          className={`md:hidden absolute top-[70px] left-0 w-full transition-all duration-500 transform ${isMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10 pointer-events-none"}`}
+          className={`xl:hidden absolute top-[85px] sm:top-[100px] left-0 w-full transition-all duration-500 transform ${isMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10 pointer-events-none"}`}
         >
           <div className="glass-card p-6 bg-[#020619]/95 flex flex-col gap-3">
             <NavLink
@@ -146,14 +163,14 @@ function Navbar() {
               className={navItemStyle}
               onClick={() => setIsMenuOpen(false)}
             >
-              Pending Jobs
+              Pending Jobs ({counts.pending})
             </NavLink>
             <NavLink
               to="/upcoming"
               className={navItemStyle}
               onClick={() => setIsMenuOpen(false)}
             >
-              Upcoming Jobs
+              Upcoming Jobs ({counts.upcoming})
             </NavLink>
             <NavLink
               to="/running"
@@ -167,7 +184,7 @@ function Navbar() {
               className={navItemStyle}
               onClick={() => setIsMenuOpen(false)}
             >
-              Completed Jobs
+              Completed Jobs ({counts.completed})
             </NavLink>
 
             <div className="h-[1px] w-full bg-[var(--border)] my-2"></div>
@@ -187,9 +204,13 @@ function Navbar() {
                 setShowLogoutModal(true);
                 setIsMenuOpen(false);
               }}
-              className="w-full p-4 bg-[#ef4444]/10 text-[var(--danger)] rounded-[14px] border-[1.5px] border-[#ef4444]/20 font-bold flex items-center justify-center gap-3 mt-2"
+              className="w-full p-4 bg-[#ef4444]/10 text-[var(--danger)] rounded-[14px] border-[1.5px] border-[#ef4444]/20 font-bold flex items-center justify-center gap-2 mt-2"
             >
-              <span className="text-xl">⏻</span> Logout
+              <span className="text-xl">
+                {" "}
+                <img src={Logout} alt="Logout" className="w-[18px] h-auto" />
+              </span>{" "}
+              Logout
             </button>
           </div>
         </div>

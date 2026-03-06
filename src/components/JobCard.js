@@ -3,6 +3,9 @@ import { db } from "../firebase/config";
 import { doc, deleteDoc, updateDoc } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import { toast } from "react-toastify";
+import EditIcon from "../assets/edit-icon.svg";
+import DeleteIcon from "../assets/delete-icon.svg";
+import DownArrow from "../assets/down-arrow.svg";
 
 function JobCard({ job, onDelete, children }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -65,8 +68,8 @@ function JobCard({ job, onDelete, children }) {
       <div className="glass-card p-5 md:p-8 mb-4 relative bg-slate-900/50 hover:border-[var(--primary)] group transition-all duration-500">
         <div className="flex flex-col md:grid md:grid-cols-[1fr_auto] gap-6 md:gap-8 items-start">
           <div className="w-full">
-            <div className="flex flex-wrap items-center gap-3 mb-5">
-              <h3 className="text-xl md:text-2xl text-white m-0 font-extrabold tracking-tight">
+            <div className="flex flex-wrap items-center gap-3 mb-5 justify-between sm:justify-start">
+              <h3 className="text-xl md:text-2xl text-white m-0 font-extrabold tracking-tight w-full sm:w-auto">
                 {job.jobNumber}
               </h3>
               {getStatusBadge(job.status)}
@@ -81,34 +84,34 @@ function JobCard({ job, onDelete, children }) {
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-10 mb-5">
               <div className="border-l-[3px] border-[var(--primary)] pl-4 md:pl-5">
                 <p className="m-0 text-[0.65rem] md:text-[0.7rem] text-[var(--text-muted)] uppercase font-black tracking-widest">
-                  Client Console
+                  Client Details
                 </p>
-                <p className="mt-1.5 mb-0 text-base md:text-lg font-bold text-[var(--text-platinum)] truncate">
+                <p className="mt-1.5 mb-0 text-[20px] md:text-lg font-bold text-[var(--text-platinum)] truncate">
                   {job.clientCompanyName || "Unregistered Entity"}
                 </p>
-                <p className="mt-0.5 mb-0 text-sm text-[var(--text-muted)] font-medium">
+                <p className="mt-0.5 mb-0 text-[16px] sm:text-sm text-white font-medium">
                   {job.clientName}
                 </p>
               </div>
 
               <div>
                 <p className="m-0 text-[0.65rem] md:text-[0.7rem] text-[var(--text-muted)] uppercase font-black tracking-widest">
-                  Specifications
+                  Lable Size & QUEANTITY
                 </p>
                 <p className="mt-1.5 mb-0 text-base md:text-lg font-bold text-[var(--text-platinum)]">
                   {job.labelSize}
                 </p>
-                <p className="mt-0.5 mb-0 text-sm text-[var(--primary)] font-black">
-                  {job.quantity?.toLocaleString()} UNITS
+                <p className="mt-0.5 mb-0 text-sm text-[var(--primary)] font-black uppercase">
+                  {job.quantity}
                 </p>
               </div>
 
               <div className="md:text-right flex flex-col items-start md:items-end">
                 <p className="m-0 text-[0.65rem] md:text-[0.7rem] text-[var(--text-muted)] uppercase font-black tracking-widest">
-                  Logged Date
+                  Order Date
                 </p>
                 <p className="mt-1.5 mb-0 text-sm text-[var(--text-muted)] font-semibold">
                   {new Date(job.createdAt).toLocaleDateString()}
@@ -122,30 +125,31 @@ function JobCard({ job, onDelete, children }) {
               </div>
             </div>
           </div>
-
-          <div className="flex flex-col gap-3 w-full md:w-auto pt-6 md:pt-0 border-t md:border-t-0 border-white/5 items-center md:items-end">
-            <div className="flex gap-2 w-full justify-start md:justify-end">
-              <button
-                onClick={() => setShowEditModal(true)}
-                className="btn-premium btn-edit flex-1 md:flex-none justify-center px-4 py-3"
-                title="Modify Config"
-              >
-                📝 <span className="hidden sm:inline">EDIT</span>
-              </button>
-              <button
-                onClick={() => setShowDeleteModal(true)}
-                className="btn-premium btn-delete flex-1 md:flex-none justify-center px-4 py-3"
-                title="Terminate Stream"
-              >
-                🗑️ <span className="hidden sm:inline">DELETE</span>
-              </button>
-            </div>
-            {children && (
-              <div className="w-full pt-4 md:pt-2 border-t md:border-t-0 border-white/5">
-                {children}
-              </div>
-            )}
+        </div>
+        <div className="flex flex-col gap-3 w-full md:w-auto pt-6 md:pt-0 border-t md:border-t-0 border-white/5 items-center md:items-end">
+          <div className="flex gap-2 w-full justify-start md:justify-between">
+            <button
+              onClick={() => setShowEditModal(true)}
+              className="btn-premium btn-edit flex-1 md:flex-none justify-center px-4 py-3"
+              title="Modify Config"
+            >
+              <img src={EditIcon} alt="Edit" className="w-[16px] h-auto" />{" "}
+              <span className="hidden sm:inline">EDIT</span>
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(true)}
+              className="btn-premium btn-delete flex-1 md:flex-none justify-center px-4 py-3"
+              title="Terminate Stream"
+            >
+              <img src={DeleteIcon} alt="Delete" className="w-[17px] h-auto" />{" "}
+              <span className="hidden sm:inline">DELETE</span>
+            </button>
           </div>
+          {children && (
+            <div className="w-full pt-4 md:pt-2 border-t md:border-t-0 border-white/5">
+              {children}
+            </div>
+          )}
         </div>
       </div>
 
@@ -224,7 +228,7 @@ function JobCard({ job, onDelete, children }) {
                   </div>
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                      Contact Name
+                      Client Name
                     </label>
                     <input
                       type="text"
@@ -320,7 +324,7 @@ function JobCard({ job, onDelete, children }) {
                       Quantity
                     </label>
                     <input
-                      type="number"
+                      type="text"
                       className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
                       value={editedJob.quantity}
                       onChange={(e) =>
@@ -333,17 +337,27 @@ function JobCard({ job, onDelete, children }) {
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
                       Priority
                     </label>
-                    <select
-                      className="w-full bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none cursor-pointer font-bold appearance-none"
-                      value={editedJob.priority}
-                      onChange={(e) =>
-                        setEditedJob({ ...editedJob, priority: e.target.value })
-                      }
-                    >
-                      <option value="High">Priority Alpha (High)</option>
-                      <option value="Medium">Status Beta (Medium)</option>
-                      <option value="Low">Base Gamma (Low)</option>
-                    </select>
+                    <div className="relative">
+                      <select
+                        className="w-full bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none cursor-pointer font-bold appearance-none"
+                        value={editedJob.priority}
+                        onChange={(e) =>
+                          setEditedJob({
+                            ...editedJob,
+                            priority: e.target.value,
+                          })
+                        }
+                      >
+                        <option value="High">Heigh Priority</option>
+                        <option value="Medium">Medium Priority</option>
+                        <option value="Low">Low Priority</option>
+                      </select>
+                      <img
+                        className="absolute top-1/2 right-[18px] w-[14px] h-auto -translate-y-1/2"
+                        src={DownArrow}
+                        alt="DownArrow"
+                      />
+                    </div>
                   </div>
                   <div className="flex flex-col gap-2.5">
                     <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
@@ -383,7 +397,7 @@ function JobCard({ job, onDelete, children }) {
 
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                  Notes
+                  Client Requirement & Notes
                 </label>
                 <textarea
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-5 rounded-xl focus:border-[var(--primary)] outline-none min-h-[120px] transition-all font-medium resize-none leading-relaxed"

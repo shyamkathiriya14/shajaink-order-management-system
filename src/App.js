@@ -3,6 +3,7 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import AddJob from "./pages/AddJob";
 import Pending from "./pages/Pending";
@@ -18,10 +19,11 @@ const ProtectedRoute = ({ children }) => {
   if (!isAuthenticated) return <Navigate to="/login" replace />;
 
   return (
-    <>
+    <div className="flex flex-col min-h-screen">
       <Navbar />
-      <div className="p-4 md:p-8 lg:p-10">{children}</div>
-    </>
+      <main className="flex-1 p-4 md:p-8 lg:p-10">{children}</main>
+      <Footer />
+    </div>
   );
 };
 

@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/config";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import JobCard from "../components/JobCard";
 import Pagination from "../components/Pagination";
+import NoJobComplate from "../assets/no-job-complate.svg";
 
 function Completed() {
   const [jobs, setJobs] = useState([]);
@@ -12,7 +13,8 @@ function Completed() {
   const jobsPerPage = 5;
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "jobs"), (snapshot) => {
+    const q = query(collection(db, "jobs"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const archived = snapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter((job) => job.status?.toLowerCase() === "completed");
@@ -103,7 +105,7 @@ function Completed() {
         ) : (
           <div className="glass-card p-16 md:p-32 text-center bg-slate-900/20 border-[1.5px] border-dashed border-[var(--border)] rounded-[24px]">
             <p className="text-lg md:text-xl text-[var(--text-muted)] font-semibold">
-              No archived protocols found.
+              No Complated Jobs.
             </p>
           </div>
         )}

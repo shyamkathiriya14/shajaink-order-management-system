@@ -23,7 +23,7 @@ function Pagination({ currentPage, totalPages, onPageChange }) {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 mb-8 animate-fade-in">
+    <div className="flex flex-col items-center justify-center gap-4 mt-12 mb-8 animate-fade-in">
       <div className="flex items-center gap-2 p-1.5 glass-card bg-slate-900/40 border-white/5 shadow-xl rounded-2xl">
         <button
           onClick={() => onPageChange(currentPage - 1)}

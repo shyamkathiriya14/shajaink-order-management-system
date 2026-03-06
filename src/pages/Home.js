@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/config";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import JobCard from "../components/JobCard";
 import Pagination from "../components/Pagination";
+import PendingJobs from "../assets/pending-jobs.svg";
+import RunningJobs from "../assets/running-jobs.svg";
+import CompletedJobs from "../assets/complated-jobs.svg";
+import AllJobs from "../assets/all-jobs.svg";
+import DownArrow from "../assets/down-arrow.svg";
 
 function Home() {
   const [jobs, setJobs] = useState([]);
@@ -12,7 +17,8 @@ function Home() {
   const jobsPerPage = 5;
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "jobs"), (snapshot) => {
+    const q = query(collection(db, "jobs"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const list = snapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
@@ -55,42 +61,66 @@ function Home() {
   }, [searchTerm, filterStatus]);
 
   return (
-    <div className="page-entry sm:px-4 md:px-10 lg:px-15 pt-[100px] md:pt-[140px] pb-10 max-w-[1500px] mx-auto">
+    <div className="page-entry sm:px-4 md:px-0 xl:px-15 pt-[100px] md:pt-[140px] pb-6 sm:pb-8 md:pb-10 max-w-[1500px] mx-auto">
       {/* Dashboard Summary Widgets */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8 mb-12 md:mb-20">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 xl:gap-8 mb-14 xl:mb-20">
         {[
           {
             label: "Total Jobs",
             value: counts.all,
             color: "var(--primary)",
             glow: "var(--primary-glow)",
-            icon: "≣",
+            icon: (
+              <img
+                src={AllJobs}
+                alt="All Jobs"
+                className="max-w-[60px] xl:max-w-[80px] w-auto h-auto"
+              />
+            ),
           },
           {
             label: "Pending",
             value: counts.pending,
             color: "var(--accent)",
             glow: "var(--accent-glow)",
-            icon: "○",
+            icon: (
+              <img
+                src={PendingJobs}
+                alt="Pending"
+                className="max-w-[60px] xl:max-w-[80px] w-auto h-auto"
+              />
+            ),
           },
           {
             label: "Running",
             value: counts.running,
             color: "var(--warning)",
             glow: "var(--warning-glow)",
-            icon: "◈",
+            icon: (
+              <img
+                src={RunningJobs}
+                alt="Running"
+                className="max-w-[60px] xl:max-w-[80px] w-auto h-auto"
+              />
+            ),
           },
           {
             label: "Completed",
             value: counts.completed,
             color: "var(--success)",
             glow: "var(--success-glow)",
-            icon: "●",
+            icon: (
+              <img
+                src={CompletedJobs}
+                alt="Completed"
+                className="max-w-[60px] xl:max-w-[80px] w-auto h-auto"
+              />
+            ),
           },
         ].map((stat) => (
           <div
             key={stat.label}
-            className="glass-card p-6 md:p-10 border-t-4 bg-slate-900/40 flex justify-between items-center transition-all duration-300 hover:scale-[1.02]"
+            className="glass-card p-6 md:p-[36px_28px] border-t-4 bg-slate-900/40 flex justify-between items-center transition-all duration-300"
             style={{ borderTopColor: stat.color }}
           >
             <div>
@@ -141,20 +171,27 @@ function Home() {
             </span>
           </div>
 
-          <select
-            value={filterStatus}
-            onChange={(e) => {
-              setFilterStatus(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="w-full sm:w-[200px] h-12 md:h-14 bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white px-4 md:px-5 rounded-xl md:rounded-2xl cursor-pointer outline-none focus:border-[var(--primary)] transition-all font-bold appearance-none"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="Upcoming">Upcoming</option>
-            <option value="Running">Running</option>
-            <option value="Completed">Completed</option>
-          </select>
+          <div className="relative">
+            <select
+              value={filterStatus}
+              onChange={(e) => {
+                setFilterStatus(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="w-full sm:w-[200px] h-12 md:h-14 bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white px-4 md:px-5 rounded-xl md:rounded-2xl cursor-pointer outline-none focus:border-[var(--primary)] transition-all font-bold appearance-none"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Upcoming">Upcoming</option>
+              <option value="Running">Running</option>
+              <option value="Completed">Completed</option>
+            </select>
+            <img
+              className="absolute top-1/2 right-[18px] w-[14px] h-auto -translate-y-1/2"
+              src={DownArrow}
+              alt="DownArrow"
+            />
+          </div>
         </div>
       </div>
 

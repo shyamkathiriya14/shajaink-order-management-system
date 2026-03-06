@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { db } from "../firebase/config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
+import DownArrow from "../assets/down-arrow.svg";
 
 function JobDetails() {
   const { id } = useParams();
@@ -92,20 +93,20 @@ function JobDetails() {
     );
 
   return (
-    <div className="page-entry sm:px-4 md:px-10 lg:px-20 pt-[100px] md:pt-[140px] pb-10 max-w-[1300px] mx-auto">
+    <div className="page-entry sm:px-4 xl:px-10 pt-[100px] md:pt-[140px] pb-10 max-w-[1500px] mx-auto">
       <Link
         to="/"
         className="inline-block mb-8 text-[var(--text-muted)] no-underline hover:text-white transition-colors font-black tracking-widest text-[0.7rem] uppercase"
       >
-        ← BACK TO STREAM
+        ← BACK TO Home
       </Link>
 
       <div className="glass-card overflow-hidden bg-[#020619]/60">
         <div className="flex flex-col lg:grid lg:grid-cols-[1fr_450px]">
           <div className="p-4 sm:p-6 md:p-12 lg:p-15 border-b lg:border-b-0 lg:border-r border-white/5">
-            <header className="mb-10 md:mb-15">
-              <div className="flex flex-wrap items-center gap-4 mb-4">
-                <span className="px-3 py-1 bg-[var(--primary)]/10 text-[var(--primary)] rounded-md text-[0.65rem] md:text-[0.7rem] font-black tracking-widest uppercase border border-[var(--primary)]/20">
+            <header className="mb-6 sm:mb-10 md:mb-15">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-4">
+                <span className="px-3 py-1 bg-white text-[var(--primary)] rounded-md text-[10px] md:text-[12px] font-black tracking-widest uppercase border border-[var(--primary)]/20">
                   JOB DETAILS
                 </span>
                 <span className="text-[var(--text-muted)] opacity-50 text-sm md:text-base">
@@ -115,7 +116,7 @@ function JobDetails() {
                   {new Date(job.createdAt).toLocaleString()}
                 </p>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black text-white m-0 tracking-tighter leading-tight">
+              <h1 className="text-[20px] sm:text-xl md:text-4xl font-black text-white m-0 leading-tight">
                 {job.jobNumber}
               </h1>
               <p className="text-[var(--text-muted)] text-lg md:text-xl font-medium mt-3 md:mt-4 opacity-70">
@@ -123,12 +124,12 @@ function JobDetails() {
               </p>
             </header>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12 mb-10 md:mb-15">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 md:gap-8 mb-8 sm:mb-10 md:mb-15">
               <div className="flex flex-col gap-2">
-                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-50">
+                <label className="text-[12px] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest opacity-50">
                   Job Status
                 </label>
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2 sm:gap-4">
                   <div className="flex items-center gap-3">
                     <span
                       className="w-2.5 h-2.5 rounded-full animate-pulse"
@@ -137,20 +138,27 @@ function JobDetails() {
                         boxShadow: `0 0 10px ${getStatusColor(job.status)}`,
                       }}
                     ></span>
-                    <span className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">
+                    <span className="text-[14px] sm:text-xl md:text-2xl font-black text-white tracking-tight">
                       {job.status}
                     </span>
                   </div>
-                  <select
-                    value={job.status || "Pending"}
-                    onChange={(e) => changeStatus(e.target.value)}
-                    className="w-full sm:w-[200px] bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white px-4 py-3 rounded-xl cursor-pointer outline-none focus:border-[var(--primary)] transition-all font-bold appearance-none text-sm"
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Upcoming">Upcoming</option>
-                    <option value="Running">Running</option>
-                    <option value="Completed">Completed</option>
-                  </select>
+                  <div className="relative w-[160px] sm:w-[200px]">
+                    <select
+                      value={job.status || "Pending"}
+                      onChange={(e) => changeStatus(e.target.value)}
+                      className="w-[160px] sm:w-[200px] bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white px-4 py-3 rounded-xl cursor-pointer outline-none focus:border-[var(--primary)] transition-all font-bold appearance-none text-sm"
+                    >
+                      <option value="Pending">Pending</option>
+                      <option value="Upcoming">Upcoming</option>
+                      <option value="Running">Running</option>
+                      <option value="Completed">Completed</option>
+                    </select>
+                    <img
+                      className="absolute top-1/2 right-[18px] w-[14px] h-auto -translate-y-1/2"
+                      src={DownArrow}
+                      alt="DownArrow"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="flex flex-col gap-2">
@@ -158,7 +166,7 @@ function JobDetails() {
                   Priority
                 </label>
                 <p
-                  className="text-xl md:text-2xl font-black text-white uppercase tracking-tight"
+                  className="text-xl md:text-2xl font-black text-white tracking-tight"
                   style={{ color: getPriorityColor(job.priority) }}
                 >
                   {job.priority}
@@ -166,18 +174,18 @@ function JobDetails() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-12">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6 md:gap-8">
               <div className="p-6 md:p-8 bg-white/[0.02] border border-white/5 rounded-2xl md:rounded-3xl">
                 <h4 className="text-[var(--primary)] text-[0.7rem] md:text-[0.75rem] font-black uppercase tracking-[0.2em] mb-6 flex items-center gap-3">
                   <span className="w-1.5 h-1.5 rounded-full bg-[var(--primary)]"></span>
                   Job Specifications
                 </h4>
-                <div className="flex flex-col gap-6">
+                <div className="grid grid-cols-2 xl:flex flex-col gap-4 md:gap-6">
                   <div>
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
                       Label Size
                     </label>
-                    <p className="text-lg md:text-xl font-bold text-white mb-0">
+                    <p className="text-[14px] md:text-xl font-bold text-white mb-0">
                       {job.labelSize}
                     </p>
                   </div>
@@ -185,7 +193,7 @@ function JobDetails() {
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
                       Used Paper
                     </label>
-                    <p className="text-lg md:text-xl font-bold text-white mb-0">
+                    <p className="text-[14px] md:text-xl font-bold text-white mb-0">
                       {job.usedPaper || "Not Specified"}
                     </p>
                   </div>
@@ -193,18 +201,15 @@ function JobDetails() {
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
                       Quantity
                     </label>
-                    <p className="text-2xl md:text-3xl font-black text-[var(--primary)] mb-0">
-                      {job.quantity?.toLocaleString()}{" "}
-                      <span className="text-sm font-medium opacity-50">
-                        UNITS
-                      </span>
+                    <p className="text-[22px] sm:text-2xl md:text-3xl font-black text-[var(--primary)] mb-0 uppercase">
+                      {job.quantity}
                     </p>
                   </div>
                   <div>
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
                       Industry
                     </label>
-                    <p className="text-lg md:text-xl font-bold text-white mb-0">
+                    <p className="text-[14px] md:text-xl font-bold text-white mb-0">
                       {job.labelIndustry || "General Industrial"}
                     </p>
                   </div>
@@ -221,7 +226,7 @@ function JobDetails() {
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
                       Contact Name
                     </label>
-                    <p className="text-lg md:text-xl font-bold text-white mb-0">
+                    <p className="text-[16px] md:text-xl font-bold text-white mb-0">
                       {job.clientName}
                     </p>
                   </div>
@@ -229,7 +234,7 @@ function JobDetails() {
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
                       Contact Info
                     </label>
-                    <p className="text-lg font-bold text-white mb-0">
+                    <p className="text-[16px] md:text-lg font-bold text-white mb-0">
                       {job.clientPhone || "STREAMS_OFFLINE"}
                     </p>
                     <p className="text-sm font-medium text-[var(--text-muted)] mt-1">
@@ -240,7 +245,7 @@ function JobDetails() {
                     <label className="text-[0.6rem] text-[var(--text-muted)] font-black uppercase tracking-widest block mb-1">
                       Address
                     </label>
-                    <p className="text-base font-bold text-white mb-0 leading-snug">
+                    <p className="text-[16px] sm:text-base font-bold text-white mb-0 leading-snug">
                       {job.clientAddress || "UNDEFINED_LOCATION"}
                     </p>
                   </div>
@@ -248,9 +253,9 @@ function JobDetails() {
               </div>
             </div>
 
-            <div className="mt-10 md:mt-15 p-6 md:p-8 bg-white/[0.02] border border-white/5 rounded-2xl md:rounded-3xl">
+            <div className="mt-8 md:mt-8 p-6 md:p-8 bg-white/[0.02] border border-white/5 rounded-2xl md:rounded-3xl">
               <h4 className="text-white text-[0.7rem] font-black uppercase tracking-[0.2em] mb-5">
-                Notes
+                Client Requirement & Notes
               </h4>
               <p className="text-[var(--text-muted)] text-base md:text-lg leading-relaxed font-medium whitespace-pre-wrap">
                 {job.addNotes ||

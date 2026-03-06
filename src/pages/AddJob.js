@@ -4,6 +4,7 @@ import { collection, addDoc, getDocs } from "firebase/firestore";
 import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import DownArrow from "../assets/down-arrow.svg";
 
 function AddJob() {
   const [jobNumber, setJobNumber] = useState("Loading...");
@@ -102,7 +103,7 @@ function AddJob() {
         clientEmail,
         clientAddress,
         labelSize,
-        quantity: Number(quantity),
+        quantity,
         labelIndustry,
         usedPaper,
         status: "Pending",
@@ -162,19 +163,19 @@ function AddJob() {
                   type="text"
                   value={clientCompanyName}
                   onChange={(e) => setClientCompanyName(e.target.value)}
-                  placeholder="e.g. Cyberdyne Systems"
+                  placeholder="Enter a Company Name"
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
                 />
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Contact Name
+                  Client Name
                 </label>
                 <input
                   type="text"
                   value={clientName}
                   onChange={(e) => setClientName(e.target.value)}
-                  placeholder="Officer Name"
+                  placeholder="Enter a Client Name"
                   required
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
                 />
@@ -187,7 +188,7 @@ function AddJob() {
                   type="tel"
                   value={clientPhone}
                   onChange={(e) => setClientPhone(e.target.value)}
-                  placeholder="+91 ..."
+                  placeholder="+91 9999999999"
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
                 />
               </div>
@@ -199,7 +200,7 @@ function AddJob() {
                   type="email"
                   value={clientEmail}
                   onChange={(e) => setClientEmail(e.target.value)}
-                  placeholder="contact@entity.com"
+                  placeholder="connect@xyz.com"
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
                 />
               </div>
@@ -233,7 +234,7 @@ function AddJob() {
                   type="text"
                   value={labelSize}
                   onChange={(e) => setLabelSize(e.target.value)}
-                  placeholder="e.g. 100x50mm"
+                  placeholder="100x50 mm/inch"
                   required
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
                 />
@@ -243,10 +244,10 @@ function AddJob() {
                   Quantity
                 </label>
                 <input
-                  type="number"
+                  type="text"
                   value={quantity}
                   onChange={(e) => setQuantity(e.target.value)}
-                  placeholder="Units"
+                  placeholder="5000 pcs/Rolls"
                   required
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
                 />
@@ -255,15 +256,22 @@ function AddJob() {
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
                   Priority
                 </label>
-                <select
-                  value={priority}
-                  onChange={(e) => setPriority(e.target.value)}
-                  className="w-full bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none cursor-pointer font-bold appearance-none transition-all"
-                >
-                  <option value="High">Priority Alpha (High)</option>
-                  <option value="Medium">Status Beta (Medium)</option>
-                  <option value="Low">Base Gamma (Low)</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value)}
+                    className="w-full bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none cursor-pointer font-bold appearance-none transition-all"
+                  >
+                    <option value="High">Heigh Priority</option>
+                    <option value="Medium">Medium Priority</option>
+                    <option value="Low">Low Priority</option>
+                  </select>
+                  <img
+                    className="absolute top-1/2 right-[18px] w-[14px] h-auto -translate-y-1/2"
+                    src={DownArrow}
+                    alt="DownArrow"
+                  />
+                </div>
               </div>
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
@@ -285,7 +293,7 @@ function AddJob() {
                   type="text"
                   value={usedPaper}
                   onChange={(e) => setUsedPaper(e.target.value)}
-                  placeholder="e.g. Sona / JK / Chromo"
+                  placeholder="Tharmal / Chromo / PET / BOPP"
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
                 />
               </div>
@@ -302,12 +310,12 @@ function AddJob() {
             <div className="flex flex-col gap-8">
               <div className="flex flex-col gap-2.5">
                 <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
-                  Notes
+                  Client Requirement & Notes
                 </label>
                 <textarea
                   value={addNotes}
                   onChange={(e) => setAddNotes(e.target.value)}
-                  placeholder="Log specific requirements..."
+                  placeholder="Enter Client Specific Requirements"
                   className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-5 rounded-xl focus:border-[var(--primary)] outline-none min-h-[120px] md:min-h-[150px] transition-all font-medium resize-none leading-relaxed placeholder:text-[var(--text-muted)]/30"
                 />
               </div>

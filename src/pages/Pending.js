@@ -1,6 +1,13 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/config";
-import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  doc,
+  updateDoc,
+  query,
+  orderBy,
+} from "firebase/firestore";
 import JobCard from "../components/JobCard";
 import Pagination from "../components/Pagination";
 import { toast } from "react-toastify";
@@ -12,7 +19,8 @@ function Pending() {
   const jobsPerPage = 5;
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, "jobs"), (snapshot) => {
+    const q = query(collection(db, "jobs"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs
         .map((doc) => ({ id: doc.id, ...doc.data() }))
         .filter((job) => !job.status || job.status.toLowerCase() === "pending");

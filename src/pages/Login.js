@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import logo from "../assets/sahajink-logo.png";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -12,7 +13,7 @@ const Login = () => {
     if (username === "admin" && password === "sahaj@8485") {
       localStorage.setItem("isAuthenticated", "true");
       localStorage.setItem("isAdmin", "true");
-      toast.success("Welcome, Commander. System Access Granted.");
+      toast.success("Welcome Admin, Logged in Successfully");
       navigate("/");
     } else {
       toast.error("Access Denied: Invalid Credentials.");
@@ -25,22 +26,21 @@ const Login = () => {
       <div className="mesh-gradient opacity-30 md:opacity-40"></div>
 
       <div className="glass-card w-full max-w-[450px] p-8 md:p-15 rounded-[32px] relative z-10 animate-fade-in-up">
-        <div className="text-center mb-10 md:mb-12">
-          <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-white text-3xl md:text-4xl shadow-[0_0_40px_rgba(0,112,255,0.4)] mx-auto mb-6 md:mb-8 animate-float">
-            S
-          </div>
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-widest uppercase mb-3">
-            Sahajink
-          </h1>
-          <p className="text-[var(--text-muted)] text-sm md:text-base font-bold tracking-[0.2em] uppercase opacity-60">
+        <div className="flex items-center justify-center mb-6 md:mb-8">
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-[200px] sm:w-[250px] h-auto"
+          />
+          {/* <p className="text-[var(--text-muted)] text-sm md:text-base font-bold tracking-[0.2em] uppercase opacity-60">
             Control Nexus
-          </p>
+          </p> */}
         </div>
 
         <form onSubmit={handleLogin} className="flex flex-col gap-6 md:gap-8">
           <div className="flex flex-col gap-2.5">
             <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] ml-1">
-              Identity Code
+              Username
             </label>
             <input
               type="text"
@@ -54,7 +54,7 @@ const Login = () => {
 
           <div className="flex flex-col gap-2.5">
             <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] ml-1">
-              Access Phrase
+              Password
             </label>
             <input
               type="password"
@@ -78,7 +78,7 @@ const Login = () => {
         <div className="mt-10 md:mt-15 text-center">
           <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent mb-6"></div>
           <p className="text-[0.6rem] md:text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-[0.3em] opacity-40">
-            Secure Industrial Protocol v4.0
+            Managed By sahajink PVT LTD
           </p>
         </div>
       </div>
