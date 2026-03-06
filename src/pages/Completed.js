@@ -10,37 +10,48 @@ function Completed() {
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "jobs"), (snapshot) => {
       const archived = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(job => job.status?.toLowerCase() === "completed");
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((job) => job.status?.toLowerCase() === "completed");
       setJobs(archived);
       setLoading(false);
     });
     return () => unsubscribe();
   }, []);
 
-  if (loading) return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh", color: "var(--primary)" }}>
-      <div className="brand-font" style={{ fontSize: "1.5rem" }}>Loading Completed Jobs...</div>
-    </div>
-  );
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen text-[var(--primary)]">
+        <div className="brand-font text-[1.5rem] md:text-[2rem] animate-pulse">
+          Retrieving Archives...
+        </div>
+      </div>
+    );
 
   return (
-    <div className="page-entry" style={{ padding: "140px 40px 40px", maxWidth: "1200px", margin: "0 auto" }}>
-      <div style={{ marginBottom: "60px", textAlign: "center" }}>
-        <h1 style={{ fontSize: "3.5rem", fontWeight: 900, color: "#fff", marginBottom: "16px", letterSpacing: "-0.04em" }}>
-          Completed <span style={{ color: "var(--success)", textShadow: "0 0 30px var(--success-glow)" }}>Jobs</span>
+    <div className="page-entry px-4 md:px-10 pt-[100px] md:pt-[140px] pb-10 max-w-[1200px] mx-auto">
+      <div className="mb-10 md:mb-15 text-center">
+        <h1 className="text-3xl md:text-5xl font-black text-white m-0 tracking-tight">
+          Completed <span className="text-[var(--success)]">Archives</span>
         </h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "1.2rem", fontWeight: 500 }}>A record of all finalized print jobs</p>
+        <p className="text-[var(--text-muted)] text-base md:text-lg font-medium mt-2">
+          Successfully terminated job sequences
+        </p>
       </div>
 
-      <div style={{ display: "grid", gap: "20px" }}>
+      <div className="grid gap-4 md:gap-5">
         {jobs.length > 0 ? (
-          jobs.map(job => (
-            <JobCard key={job.id} job={job} onDelete={(id) => setJobs(jobs.filter(j => j.id !== id))} />
+          jobs.map((job) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              onDelete={(id) => setJobs(jobs.filter((j) => j.id !== id))}
+            />
           ))
         ) : (
-          <div className="glass-card" style={{ padding: "120px", textAlign: "center", border: "1.5px dashed var(--border)" }}>
-            <p style={{ fontSize: "1.6rem", color: "var(--text-muted)", fontWeight: 600 }}>No completed jobs found</p>
+          <div className="glass-card p-16 md:p-32 text-center bg-slate-900/20 border-[1.5px] border-dashed border-[var(--border)] rounded-[24px]">
+            <p className="text-lg md:text-xl text-[var(--text-muted)] font-semibold">
+              No archived protocols found.
+            </p>
           </div>
         )}
       </div>

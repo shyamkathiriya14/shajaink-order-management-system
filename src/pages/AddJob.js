@@ -15,7 +15,7 @@ function AddJob() {
   const [labelSize, setLabelSize] = useState("");
   const [quantity, setQuantity] = useState("");
   const [labelIndustry, setLabelIndustry] = useState("");
-  const [priority, setPriority] = useState("Medium"); 
+  const [priority, setPriority] = useState("Medium");
   const [addNotes, setAddNotes] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,17 +26,30 @@ function AddJob() {
     const generateJobNumber = async () => {
       try {
         const date = new Date();
-        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const monthNames = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
         const currentMonthName = monthNames[date.getMonth()];
         const currentYear = date.getFullYear();
         const suffix = `-${currentMonthName}-${currentYear}`;
 
         const snapshot = await getDocs(collection(db, "jobs"));
         const jobsThisMonth = snapshot.docs
-          .map(doc => doc.data().jobNumber)
-          .filter(num => num && num.endsWith(suffix));
+          .map((doc) => doc.data().jobNumber)
+          .filter((num) => num && num.endsWith(suffix));
 
-        const nextId = String(jobsThisMonth.length + 1).padStart(2, '0');
+        const nextId = String(jobsThisMonth.length + 1).padStart(2, "0");
         setJobNumber(`${nextId}${suffix}`);
       } catch (error) {
         setJobNumber("ERR-GEN");
@@ -56,19 +69,26 @@ function AddJob() {
     try {
       let imageUrl = "";
       if (imageFile) {
-        const storageRef = ref(storage, `job-images/${jobNumber}_${imageFile.name}`);
+        const storageRef = ref(
+          storage,
+          `job-images/${jobNumber}_${imageFile.name}`,
+        );
         const uploadTask = uploadBytesResumable(storageRef, imageFile);
 
         imageUrl = await new Promise((resolve, reject) => {
-          uploadTask.on('state_changed', 
+          uploadTask.on(
+            "state_changed",
             (snapshot) => {
-              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              const progress =
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
               setUploadProgress(progress);
-            }, 
-            (error) => reject(error), 
+            },
+            (error) => reject(error),
             () => {
-              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => resolve(downloadURL));
-            }
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
+                resolve(downloadURL),
+              );
+            },
           );
         });
       }
@@ -83,15 +103,15 @@ function AddJob() {
         labelSize,
         quantity: Number(quantity),
         labelIndustry,
-        status: "Pending", 
-        priority, 
+        status: "Pending",
+        priority,
         addNotes,
         imageUrl,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       });
 
       toast.success("Job added successfully.");
-      navigate("/"); 
+      navigate("/");
     } catch (error) {
       toast.error(`Failed to add job: ${error.message}`);
     } finally {
@@ -100,104 +120,213 @@ function AddJob() {
   };
 
   return (
-    <div className="page-entry" style={{ padding: "140px 20px 60px", maxWidth: "900px", margin: "0 auto" }}>
-      <div className="glass-card" style={{ padding: "60px", background: "rgba(15, 23, 42, 0.4)" }}>
-        <header style={{ marginBottom: "48px", textAlign: "center" }}>
-          <h1 style={{ fontSize: "2.8rem", fontWeight: 900, color: "#fff", marginBottom: "16px", letterSpacing: "-0.04em" }}>
-            Add <span style={{ color: "var(--primary)", textShadow: "0 0 30px var(--primary-glow)" }}>New Job</span>
+    <div className="page-entry px-4 md:px-10 lg:px-20 pt-[100px] md:pt-[140px] pb-10 max-w-[1000px] mx-auto">
+      <div className="glass-card p-6 md:p-15 bg-[#020619]/60">
+        <header className="mb-10 md:mb-12 text-center">
+          <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-3 md:mb-4 tracking-tight">
+            Register <span className="blue-gradient-text">Stream Job</span>
           </h1>
-          <p style={{ color: "var(--text-muted)", fontSize: "1.1rem", fontWeight: 500 }}>Register a new order into Sahajink</p>
+          <p className="text-[var(--text-muted)] text-base md:text-lg font-medium">
+            Initialize a new industrial print protocol
+          </p>
         </header>
 
-        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
-          
+        <form onSubmit={handleSubmit} className="flex flex-col gap-8 md:gap-12">
           <section>
-            <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "24px" }}>
-              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 10px var(--primary-glow)" }}></span>
-              <h4 style={{ margin: 0, color: "#fff", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em" }}>Client Details</h4>
+            <div className="flex items-center gap-3 mb-6 md:mb-8">
+              <div className="w-2 h-2 rounded-full bg-[var(--primary)] shadow-[0_0_10px_var(--primary-glow)]"></div>
+              <h4 className="text-[0.7rem] md:text-[0.75rem] text-white uppercase tracking-[0.2em] font-black">
+                Entity Profile
+              </h4>
             </div>
-            
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Job Number</label>
-                <input type="text" value={jobNumber} readOnly style={{ background: "rgba(255,255,255,0.02)", color: "var(--primary)", fontWeight: 900, borderStyle: "dashed" }} />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Job ID (Auto)
+                </label>
+                <input
+                  type="text"
+                  value={jobNumber}
+                  readOnly
+                  className="w-full bg-white/5 border-[1.5px] border-dashed border-[var(--primary)] text-[var(--primary)] p-4 rounded-xl font-black outline-none transition-all cursor-default"
+                />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Client Company</label>
-                <input type="text" value={clientCompanyName} onChange={(e) => setClientCompanyName(e.target.value)} placeholder="e.g. Acme Corp" />
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Company Entity
+                </label>
+                <input
+                  type="text"
+                  value={clientCompanyName}
+                  onChange={(e) => setClientCompanyName(e.target.value)}
+                  placeholder="e.g. Cyberdyne Systems"
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
+                />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Contact Person</label>
-                <input type="text" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder="Full Name" required />
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Primary Contact
+                </label>
+                <input
+                  type="text"
+                  value={clientName}
+                  onChange={(e) => setClientName(e.target.value)}
+                  placeholder="Officer Name"
+                  required
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
+                />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Phone Number</label>
-                <input type="tel" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder="+91 ..." />
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Comms Stream (Phone)
+                </label>
+                <input
+                  type="tel"
+                  value={clientPhone}
+                  onChange={(e) => setClientPhone(e.target.value)}
+                  placeholder="+91 ..."
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
+                />
               </div>
             </div>
           </section>
 
           <section>
-            <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "24px" }}>
-              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--accent)", boxShadow: "0 0 10px var(--accent-glow)" }}></span>
-              <h4 style={{ margin: 0, color: "#fff", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em" }}>Specifications</h4>
+            <div className="flex items-center gap-3 mb-6 md:mb-8">
+              <div className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-[0_0_10px_var(--accent-glow)]"></div>
+              <h4 className="text-[0.7rem] md:text-[0.75rem] text-white uppercase tracking-[0.2em] font-black">
+                Technical Specs
+              </h4>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "28px" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Label Size</label>
-                <input type="text" value={labelSize} onChange={(e) => setLabelSize(e.target.value)} placeholder="e.g. 100x50mm" required />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Label Framework
+                </label>
+                <input
+                  type="text"
+                  value={labelSize}
+                  onChange={(e) => setLabelSize(e.target.value)}
+                  placeholder="e.g. 100x50mm"
+                  required
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
+                />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Quantity</label>
-                <input type="number" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="Units" required />
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Volume Count
+                </label>
+                <input
+                  type="number"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  placeholder="Units"
+                  required
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
+                />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Priority</label>
-                <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Priority protocol
+                </label>
+                <select
+                  value={priority}
+                  onChange={(e) => setPriority(e.target.value)}
+                  className="w-full bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none cursor-pointer font-bold appearance-none transition-all"
+                >
+                  <option value="High">Priority Alpha (High)</option>
+                  <option value="Medium">Status Beta (Medium)</option>
+                  <option value="Low">Base Gamma (Low)</option>
                 </select>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Industry</label>
-                <input type="text" value={labelIndustry} onChange={(e) => setLabelIndustry(e.target.value)} placeholder="Pharma / FMCG" />
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Sector Class
+                </label>
+                <input
+                  type="text"
+                  value={labelIndustry}
+                  onChange={(e) => setLabelIndustry(e.target.value)}
+                  placeholder="Pharma / FMCG"
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium placeholder:text-[var(--text-muted)]/30"
+                />
               </div>
             </div>
           </section>
 
           <section>
-            <div style={{ display: "flex", alignItems: "center", gap: "15px", marginBottom: "24px" }}>
-              <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "var(--success)", boxShadow: "0 0 10px var(--success-glow)" }}></span>
-              <h4 style={{ margin: 0, color: "#fff", fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: "0.2em" }}>Documentation</h4>
+            <div className="flex items-center gap-3 mb-6 md:mb-8">
+              <div className="w-2 h-2 rounded-full bg-[var(--success)] shadow-[0_0_10px_var(--success-glow)]"></div>
+              <h4 className="text-[0.7rem] md:text-[0.75rem] text-white uppercase tracking-[0.2em] font-black">
+                Data Attachment
+              </h4>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Notes</label>
-                <textarea value={addNotes} onChange={(e) => setAddNotes(e.target.value)} placeholder="Special instructions..." style={{ minHeight: "120px" }} />
+            <div className="flex flex-col gap-8">
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Directives (Notes)
+                </label>
+                <textarea
+                  value={addNotes}
+                  onChange={(e) => setAddNotes(e.target.value)}
+                  placeholder="Log specific requirements..."
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-5 rounded-xl focus:border-[var(--primary)] outline-none min-h-[120px] md:min-h-[150px] transition-all font-medium resize-none leading-relaxed placeholder:text-[var(--text-muted)]/30"
+                />
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Design Image</label>
-                <div style={{ padding: "40px", border: "2px dashed var(--border)", borderRadius: "20px", textAlign: "center", background: "rgba(255,255,255,0.01)", transition: "var(--transition)" }} onMouseOver={(e) => e.currentTarget.style.borderColor = "var(--primary)"} onMouseOut={(e) => e.currentTarget.style.borderColor = "var(--border)"}>
-                  <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} style={{ color: "var(--text-muted)" }} />
-                  {imageFile && <p style={{ fontSize: "0.9rem", color: "var(--success)", fontWeight: 800, marginTop: "15px" }}>SELECTED: {imageFile.name}</p>}
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-widest ml-1">
+                  Visual Blueprint
+                </label>
+                <div className="relative group cursor-pointer">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImageFile(e.target.files[0])}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                  />
+                  <div className="p-8 md:p-12 border-2 border-dashed border-[var(--border)] rounded-2xl md:rounded-3xl text-center bg-white/[0.01] group-hover:bg-white/[0.03] group-hover:border-[var(--primary)] transition-all">
+                    <span className="text-4xl md:text-5xl block mb-4 opacity-40 group-hover:scale-110 transition-transform">
+                      📸
+                    </span>
+                    <p className="text-[var(--text-muted)] font-medium text-sm md:text-base">
+                      Upload Design Interface
+                    </p>
+                    <p className="text-[0.6rem] md:text-[0.65rem] text-[var(--text-muted)] uppercase tracking-widest mt-2">
+                      Supports JPG, PNG, WEBP
+                    </p>
+                  </div>
+                  {imageFile && (
+                    <div className="mt-4 p-4 glass-card border-[rgba(34,197,94,0.3)] bg-green-500/5 flex items-center justify-between">
+                      <span className="text-green-500 text-xs md:text-sm font-bold flex items-center gap-2">
+                        <span className="text-lg">✓</span> FILE LOGGED:{" "}
+                        {imageFile.name}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setImageFile(null)}
+                        className="text-white opacity-40 hover:opacity-100 text-lg"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </section>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isSubmitting}
-            className="btn-primary"
-            style={{ 
-              padding: "24px", 
-              fontSize: "1.1rem", 
-              marginTop: "20px",
-              boxShadow: isSubmitting ? "none" : "0 20px 40px var(--primary-glow)"
-            }}
+            className="btn-primary w-full py-5 md:py-6 text-base md:text-lg font-black uppercase tracking-[0.2em] shadow-[0_20px_50px_rgba(0,112,255,0.3)] mt-4 disabled:opacity-50 disabled:cursor-not-allowed group relative overflow-hidden"
           >
-            {isSubmitting ? `UPLOADING (${Math.round(uploadProgress)}%)...` : "ADD JOB"}
+            <span className="relative z-10">
+              {isSubmitting
+                ? `Transmitting (${Math.round(uploadProgress)}%)...`
+                : "Initialize Job"}
+            </span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
           </button>
         </form>
       </div>

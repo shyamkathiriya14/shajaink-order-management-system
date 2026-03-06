@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase/config";
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
+import { collection, onSnapshot, doc, updateDoc } from "firebase/firestore";
 import JobCard from "../components/JobCard";
 import { toast } from "react-toastify";
 
@@ -8,63 +8,59 @@ function Upcoming() {
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
-    const fetchJobs = async () => {
-      const snapshot = await getDocs(collection(db, "jobs"));
+    const unsubscribe = onSnapshot(collection(db, "jobs"), (snapshot) => {
       const data = snapshot.docs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(job => job.status && job.status.toLowerCase() === "upcoming");
-
+        .map((doc) => ({ id: doc.id, ...doc.data() }))
+        .filter((job) => job.status && job.status.toLowerCase() === "upcoming");
       setJobs(data);
-    };
-
-    fetchJobs();
+    });
+    return () => unsubscribe();
   }, []);
 
-  const handleStart = async (jobId) => {
+  const startJob = async (jobId) => {
     try {
       const jobRef = doc(db, "jobs", jobId);
       await updateDoc(jobRef, { status: "Running" });
-      setJobs(jobs.filter(job => job.id !== jobId));
       toast.success("Job moved to Running!");
     } catch (error) {
-      console.error("Error updating job:", error);
-      toast.error("Failed to update status!");
+      console.error("Error starting job:", error);
+      toast.error("Failed to start job.");
     }
   };
 
   const handleDelete = (id) => {
-    setJobs(jobs.filter(job => job.id !== id));
+    setJobs(jobs.filter((job) => job.id !== id));
   };
 
   return (
-    <div className="page-entry" style={{ padding: "140px 40px 40px", maxWidth: "1200px", margin: "0 auto" }}>
-      <div style={{ marginBottom: "60px", textAlign: "center" }}>
-        <h1 style={{ fontSize: "3.5rem", fontWeight: 900, color: "#fff", marginBottom: "16px", letterSpacing: "-0.04em" }}>
-          Upcoming <span style={{ color: "var(--primary)", textShadow: "0 0 30px var(--primary-glow)" }}>Jobs</span>
+    <div className="page-entry px-4 md:px-10 pt-[100px] md:pt-[140px] pb-10 max-w-[1200px] mx-auto">
+      <div className="mb-10 md:mb-15 text-center">
+        <h1 className="text-3xl md:text-5xl font-black text-white m-0 tracking-tight">
+          Upcoming <span className="text-[var(--primary)]">Queue</span>
         </h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "1.2rem", fontWeight: 500 }}>Scheduled orders ready for production</p>
+        <p className="text-[var(--text-muted)] text-base md:text-lg font-medium mt-2">
+          Validated jobs scheduled for production
+        </p>
       </div>
 
-      <div style={{ display: "grid", gap: "20px" }}>
-        {jobs.length === 0 ? (
-          <div className="glass-card" style={{ padding: "120px", textAlign: "center", border: "1.5px dashed var(--border)" }}>
-            <p style={{ fontSize: "1.6rem", color: "var(--text-muted)", fontWeight: 600 }}>No upcoming jobs found</p>
-          </div>
-        ) : (
-          jobs.map(job => (
+      <div className="grid gap-4 md:gap-5">
+        {jobs.length > 0 ? (
+          jobs.map((job) => (
             <JobCard key={job.id} job={job} onDelete={handleDelete}>
-              <button 
-                onClick={() => handleStart(job.id)}
-                className="btn-premium"
-                style={{ 
-                  backgroundColor: "var(--primary)", 
-                  boxShadow: "0 0 20px var(--primary-glow)"
-                }}
+              <button
+                onClick={() => startJob(job.id)}
+                className="btn-primary w-full md:w-auto px-8 py-3.5 rounded-xl text-[0.7rem] font-black uppercase tracking-widest mt-2 md:mt-0"
               >
-                <span>⚡</span> START PRINTING
+                INITIATE PRINTING ◈
               </button>
             </JobCard>
           ))
+        ) : (
+          <div className="glass-card p-16 md:p-32 text-center bg-slate-900/20 border-[1.5px] border-dashed border-[var(--border)] rounded-[24px]">
+            <p className="text-lg md:text-xl text-[var(--text-muted)] font-semibold">
+              Upcoming queue is currently empty.
+            </p>
+          </div>
         )}
       </div>
     </div>

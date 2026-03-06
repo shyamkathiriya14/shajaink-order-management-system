@@ -4,17 +4,26 @@ import { db } from "../firebase/config";
 import { collection, onSnapshot } from "firebase/firestore";
 
 function Navbar() {
-  const [counts, setCounts] = useState({ pending: 0, running: 0, completed: 0 });
+  const [counts, setCounts] = useState({
+    pending: 0,
+    running: 0,
+    completed: 0,
+  });
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, "jobs"), (snapshot) => {
-      const allJobs = snapshot.docs.map(doc => doc.data());
+      const allJobs = snapshot.docs.map((doc) => doc.data());
       setCounts({
-        pending: allJobs.filter(j => j.status?.toLowerCase() === "pending" || !j.status).length,
-        running: allJobs.filter(j => j.status?.toLowerCase() === "running").length,
-        completed: allJobs.filter(j => j.status?.toLowerCase() === "completed").length,
+        pending: allJobs.filter(
+          (j) => j.status?.toLowerCase() === "pending" || !j.status,
+        ).length,
+        running: allJobs.filter((j) => j.status?.toLowerCase() === "running")
+          .length,
+        completed: allJobs.filter(
+          (j) => j.status?.toLowerCase() === "completed",
+        ).length,
       });
     });
     return () => unsubscribe();
@@ -27,7 +36,9 @@ function Navbar() {
     } else {
       document.body.style.overflow = "unset";
     }
-    return () => { document.body.style.overflow = "unset"; };
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [showLogoutModal]);
 
   const confirmLogout = () => {
@@ -36,102 +47,149 @@ function Navbar() {
     navigate("/login");
   };
 
-  const navItemStyle = ({ isActive }) => ({
-    textDecoration: "none",
-    color: isActive ? "#fff" : "var(--text-muted)",
-    fontSize: "0.8rem",
-    fontWeight: 800,
-    textTransform: "uppercase",
-    letterSpacing: "0.1em",
-    padding: "10px 20px",
-    borderRadius: "14px",
-    transition: "var(--transition)",
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    background: isActive ? "rgba(255, 255, 255, 0.05)" : "transparent",
-    border: isActive ? "1.5px solid rgba(255, 255, 255, 0.1)" : "1.5px solid transparent",
-    boxShadow: isActive ? "0 10px 30px rgba(0,0,0,0.3)" : "none"
-  });
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // Body Scroll Lock for Menu/Modal
+  useEffect(() => {
+    if (showLogoutModal || isMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showLogoutModal, isMenuOpen]);
+
+  const navItemStyle = ({ isActive }) => `
+    no-underline text-sm md:text-xs font-extrabold uppercase tracking-widest px-5 py-3 md:py-2.5 rounded-[14px] transition-all duration-300 flex items-center gap-2.5 w-full md:w-auto
+    ${isActive ? "text-white bg-white/5 border-[1.5px] border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.3)]" : "text-[var(--text-muted)] bg-transparent border-[1.5px] border-transparent hover:text-white"}
+  `;
 
   return (
     <>
-      <nav style={{ 
-        position: "fixed", 
-        top: "30px", 
-        left: "50%", 
-        transform: "translateX(-50%)", 
-        width: "calc(100% - 60px)", 
-        maxWidth: "1380px", 
-        zIndex: 1000,
-      }}>
-        <div className="glass-card" style={{ 
-          display: "flex", 
-          justifyContent: "space-between", 
-          alignItems: "center", 
-          padding: "14px 32px", 
-          borderRadius: "24px",
-          background: "rgba(2, 6, 23, 0.8)",
-        }}>
+      <nav className="fixed top-4 md:top-[30px] left-1/2 -translate-x-1/2 w-[calc(100%-32px)] md:w-[calc(100%-60px)] max-w-[1380px] z-[1000]">
+        <div className="glass-card flex justify-between items-center px-5 md:px-8 py-3 md:py-3.5 rounded-[20px] md:rounded-[24px] bg-[#020619]/80">
           {/* Elite Brand */}
-          <Link to="/" style={{ textDecoration: "none", display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ 
-              width: "36px", 
-              height: "36px", 
-              background: "linear-gradient(135deg, var(--primary), var(--accent))", 
-              borderRadius: "10px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontWeight: 900,
-              color: "#fff",
-              fontSize: "1.4rem",
-              boxShadow: "0 0 20px var(--primary-glow)"
-            }}>S</div>
-            <span style={{ 
-              fontSize: "1.1rem", 
-              fontWeight: 800, 
-              letterSpacing: "0.15em", 
-              color: "#fff",
-              textShadow: "0 0 15px rgba(255,255,255,0.2)"
-            }}>SAHAJINK</span>
+          <Link to="/" className="no-underline flex items-center gap-3 group">
+            <div className="w-8 h-8 md:w-9 md:h-9 bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] rounded-[10px] flex items-center justify-center font-black text-white text-lg md:text-xl shadow-[0_0_20px_var(--primary-glow)] group-hover:scale-110 transition-transform">
+              S
+            </div>
+            <span className="text-base md:text-lg font-extrabold tracking-[0.15em] text-white [text-shadow:0_0_15px_rgba(255,255,255,0.2)]">
+              SAHAJINK
+            </span>
           </Link>
 
-          {/* Executive Command Dashboard Links */}
-          <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <NavLink to="/" style={navItemStyle}>All Jobs</NavLink>
-            <NavLink to="/pending" style={navItemStyle}>Pending Jobs</NavLink>
-            <NavLink to="/upcoming" style={navItemStyle}>Upcoming Jobs</NavLink>
-            <NavLink to="/running" style={navItemStyle}>
-              Running Jobs <span style={{ color: "var(--warning)", boxShadow: "0 0 10px var(--warning-glow)", padding: "2px 6px", borderRadius: "6px", background: "rgba(245, 158, 11, 0.1)", fontSize: "0.7rem" }}>{counts.running}</span>
+          {/* Mobile Menu Toggle */}
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 text-white text-2xl focus:outline-none"
+            >
+              {isMenuOpen ? "✕" : "☰"}
+            </button>
+          </div>
+
+          {/* Desktop Links */}
+          <div className="hidden md:flex gap-2 items-center">
+            <NavLink to="/" className={navItemStyle}>
+              All Jobs
             </NavLink>
-            <NavLink to="/completed" style={navItemStyle}>Completed Jobs</NavLink>
-            
-            <div style={{ width: "1.5px", height: "30px", background: "var(--border)", margin: "0 15px" }}></div>
-            
-            <Link to="/add-job" style={{ textDecoration: "none" }}>
-              <button className="btn-primary" style={{ padding: "12px 24px", fontSize: "0.75rem", borderRadius: "14px" }}>
+            <NavLink to="/pending" className={navItemStyle}>
+              Pending
+            </NavLink>
+            <NavLink to="/upcoming" className={navItemStyle}>
+              Upcoming
+            </NavLink>
+            <NavLink to="/running" className={navItemStyle}>
+              Running{" "}
+              <span className="text-[var(--warning)] [box-shadow:0_0_10px_var(--warning-glow)] px-1.5 py-0.5 rounded-md bg-[var(--warning)]/10 text-[0.7rem]">
+                {counts.running}
+              </span>
+            </NavLink>
+            <NavLink to="/completed" className={navItemStyle}>
+              Completed
+            </NavLink>
+
+            <div className="w-[1.5px] h-[30px] bg-[var(--border)] mx-3"></div>
+
+            <Link to="/add-job" className="no-underline">
+              <button className="btn-primary px-5 py-2.5 text-[0.7rem] rounded-[12px]">
                 + ADD JOB
               </button>
             </Link>
-            
-            <button 
+
+            <button
               onClick={() => setShowLogoutModal(true)}
-              style={{ 
-                padding: "12px", 
-                background: "rgba(239, 68, 68, 0.05)", 
-                color: "var(--danger)", 
-                borderRadius: "14px",
-                border: "1.5px solid rgba(239, 68, 68, 0.1)",
-                marginLeft: "8px",
-                cursor: "pointer",
-                transition: "var(--transition)"
-              }} 
-              onMouseOver={(e) => e.currentTarget.style.background = "rgba(239, 68, 68, 0.1)"} 
-              onMouseOut={(e) => e.currentTarget.style.background = "rgba(239, 68, 68, 0.05)"}
+              className="p-2.5 bg-[#ef4444]/5 text-[var(--danger)] rounded-[12px] border-[1.5px] border-[#ef4444]/10 ml-1 cursor-pointer transition-all duration-300 hover:bg-[#ef4444]/10"
               title="Logout"
             >
-              <span style={{ fontSize: "1.2rem" }}>⏻</span>
+              <span className="text-lg">⏻</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile Sidebar / Drawer */}
+        <div
+          className={`md:hidden absolute top-[70px] left-0 w-full transition-all duration-500 transform ${isMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-10 pointer-events-none"}`}
+        >
+          <div className="glass-card p-6 bg-[#020619]/95 flex flex-col gap-3">
+            <NavLink
+              to="/"
+              className={navItemStyle}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              All Jobs
+            </NavLink>
+            <NavLink
+              to="/pending"
+              className={navItemStyle}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Pending Jobs
+            </NavLink>
+            <NavLink
+              to="/upcoming"
+              className={navItemStyle}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Upcoming Jobs
+            </NavLink>
+            <NavLink
+              to="/running"
+              className={navItemStyle}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Running Jobs ({counts.running})
+            </NavLink>
+            <NavLink
+              to="/completed"
+              className={navItemStyle}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Completed Jobs
+            </NavLink>
+
+            <div className="h-[1px] w-full bg-[var(--border)] my-2"></div>
+
+            <Link
+              to="/add-job"
+              className="no-underline"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              <button className="btn-primary w-full py-4 rounded-[14px] text-sm flex items-center justify-center gap-2">
+                <span>+</span> CREATE NEW JOB
+              </button>
+            </Link>
+
+            <button
+              onClick={() => {
+                setShowLogoutModal(true);
+                setIsMenuOpen(false);
+              }}
+              className="w-full p-4 bg-[#ef4444]/10 text-[var(--danger)] rounded-[14px] border-[1.5px] border-[#ef4444]/20 font-bold flex items-center justify-center gap-3 mt-2"
+            >
+              <span className="text-xl">⏻</span> AUTHORIZE LOGOUT
             </button>
           </div>
         </div>
@@ -139,57 +197,24 @@ function Navbar() {
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (
-        <div style={{ 
-          position: "fixed", 
-          top: 0, 
-          left: 0, 
-          width: "100%", 
-          height: "100%", 
-          background: "rgba(2, 6, 23, 0.9)", 
-          zIndex: 9999, 
-          display: "flex", 
-          alignItems: "center", 
-          justifyContent: "center", 
-          backdropFilter: "blur(20px)" 
-        }}>
-          <div className="glass-card" style={{ 
-            maxWidth: "400px", 
-            width: "90%", 
-            padding: "40px", 
-            textAlign: "center",
-            animation: "fade-in-up 0.3s ease" 
-          }}>
-            <h2 style={{ color: "var(--danger)", marginBottom: "16px", fontSize: "1.8rem" }}>Logout Confirmation?</h2>
-            <p style={{ color: "var(--text-muted)", marginBottom: "32px", fontSize: "1.05rem" }}>
-              Are you sure you want to do logout?
+        <div className="fixed inset-0 w-full h-full bg-[#020617]/90 z-[9999] flex items-center justify-center backdrop-blur-xl p-4">
+          <div className="glass-card max-w-[400px] w-full p-8 md:p-10 text-center animate-fade-in-up">
+            <h2 className="text-[var(--danger)] mb-4 text-2xl md:text-3xl font-bold">
+              Logout Confirmation?
+            </h2>
+            <p className="text-[var(--text-muted)] mb-8 text-sm md:text-base font-medium">
+              Are you sure you want to log out of the system?
             </p>
-            <div style={{ display: "flex", gap: "12px" }}>
-              <button 
+            <div className="flex gap-4">
+              <button
                 onClick={() => setShowLogoutModal(false)}
-                style={{ 
-                  flex: 1, 
-                  padding: "16px", 
-                  background: "none", 
-                  border: "1.5px solid var(--border)", 
-                  color: "#fff", 
-                  borderRadius: "14px", 
-                  fontWeight: 700, 
-                  cursor: "pointer",
-                  transition: "var(--transition)"
-                }}
+                className="flex-1 p-4 bg-transparent border-[1.5px] border-[var(--border)] text-white rounded-[14px] font-bold cursor-pointer hover:bg-white/5 transition-all text-xs md:text-sm"
               >
                 Cancel
               </button>
-              <button 
+              <button
                 onClick={confirmLogout}
-                className="btn-primary"
-                style={{ 
-                  flex: 1, 
-                  padding: "16px", 
-                  borderRadius: "14px",
-                  background: "var(--danger)",
-                  boxShadow: "0 10px 20px rgba(239, 68, 68, 0.2)"
-                }}
+                className="flex-1 p-4 rounded-[14px] bg-[var(--danger)] border-none shadow-[0_10px_20px_rgba(239,68,68,0.2)] font-bold text-white text-xs md:text-sm"
               >
                 Logout
               </button>

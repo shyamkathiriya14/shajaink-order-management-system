@@ -1,143 +1,92 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 
-function Login() {
+const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (username === "admin" && password === "admin123") {
-      localStorage.setItem("isAuthenticated", "true");
-      toast.success("Login Successful!");
+    if (username === "admin" && password === "sahaj@8485") {
+      localStorage.setItem("isAdmin", "true");
+      toast.success("Welcome, Commander. System Access Granted.");
       navigate("/");
     } else {
-      toast.error("Invalid Username or Password!");
+      toast.error("Access Denied: Invalid Credentials.");
     }
   };
 
   return (
-    <div style={{ 
-      minHeight: "100vh", 
-      width: "100%", 
-      display: "flex", 
-      alignItems: "center", 
-      justifyContent: "center",
-      background: "#020617",
-      position: "relative",
-      overflow: "hidden"
-    }}>
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#020617] relative overflow-hidden px-4">
       {/* Background Mesh Animation */}
-      <div className="mesh-gradient" style={{ opacity: 0.4 }}></div>
+      <div className="mesh-gradient opacity-30 md:opacity-40"></div>
 
-      <div className="glass-card" style={{ 
-        width: "90%", 
-        maxWidth: "450px", 
-        padding: "60px 40px", 
-        borderRadius: "32px",
-        position: "relative",
-        zIndex: 10,
-        animation: "fade-in-up 0.8s cubic-bezier(0.2, 0.8, 0.2, 1)"
-      }}>
-        {/* Brand Icon */}
-        <div style={{ 
-          width: "60px", 
-          height: "60px", 
-          background: "linear-gradient(135deg, var(--primary), var(--accent))", 
-          borderRadius: "16px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontWeight: 900,
-          color: "#fff",
-          fontSize: "2rem",
-          margin: "0 auto 32px",
-          boxShadow: "0 0 30px var(--primary-glow)"
-        }}>S</div>
+      <div className="glass-card w-full max-w-[450px] p-8 md:p-15 rounded-[32px] relative z-10 animate-fade-in-up">
+        <div className="text-center mb-10 md:mb-12">
+          <div className="w-16 h-16 md:w-20 md:h-20 bg-gradient-to-br from-[var(--primary)] to-[var(--accent)] rounded-2xl md:rounded-3xl flex items-center justify-center font-black text-white text-3xl md:text-4xl shadow-[0_0_40px_rgba(0,112,255,0.4)] mx-auto mb-6 md:mb-8 animate-float">
+            S
+          </div>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-widest uppercase mb-3">
+            Sahajink
+          </h1>
+          <p className="text-[var(--text-muted)] text-sm md:text-base font-bold tracking-[0.2em] uppercase opacity-60">
+            Control Nexus
+          </p>
+        </div>
 
-        <h2 style={{ 
-          textAlign: "center", 
-          marginBottom: "12px", 
-          fontSize: "2.2rem", 
-          fontWeight: 800, 
-          color: "#fff",
-          letterSpacing: "-0.04em"
-        }}>Welcome Back</h2>
-        
-        <p style={{ 
-          textAlign: "center", 
-          color: "var(--text-muted)", 
-          marginBottom: "48px",
-          fontSize: "1.1rem",
-          fontWeight: 500
-        }}>Enter your credentials to access the console</p>
-
-        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.15em" }}>Username</label>
-            <input 
-              type="text" 
-              value={username} 
-              onChange={(e) => setUsername(e.target.value)} 
-              placeholder="admin"
-              style={{ 
-                padding: "18px 24px", 
-                borderRadius: "16px", 
-                border: "1.5px solid var(--border)",
-                background: "rgba(255,255,255,0.03)",
-                color: "#fff",
-                fontSize: "1rem",
-                transition: "var(--transition)"
-              }}
+        <form onSubmit={handleLogin} className="flex flex-col gap-6 md:gap-8">
+          <div className="flex flex-col gap-2.5">
+            <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] ml-1">
+              Identity Code
+            </label>
+            <input
+              type="text"
+              placeholder="Username"
+              className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 md:p-5 rounded-xl md:rounded-2xl focus:border-[var(--primary)] outline-none transition-all font-bold placeholder:text-[var(--text-muted)]/20 shadow-inner"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            <label style={{ fontSize: "0.75rem", fontWeight: 900, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.15em" }}>Password</label>
-            <input 
-              type="password" 
-              value={password} 
-              onChange={(e) => setPassword(e.target.value)} 
-              placeholder="••••••••"
-              style={{ 
-                padding: "18px 24px", 
-                borderRadius: "16px", 
-                border: "1.5px solid var(--border)",
-                background: "rgba(255,255,255,0.03)",
-                color: "#fff",
-                fontSize: "1rem",
-                transition: "var(--transition)"
-              }}
+          <div className="flex flex-col gap-2.5">
+            <label className="text-[0.65rem] md:text-[0.7rem] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] ml-1">
+              Access Phrase
+            </label>
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 md:p-5 rounded-xl md:rounded-2xl focus:border-[var(--primary)] outline-none transition-all font-bold placeholder:text-[var(--text-muted)]/20 shadow-inner tracking-widest"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
-          <button 
-            type="submit" 
-            className="btn-primary"
-            style={{ 
-              padding: "20px", 
-              borderRadius: "16px", 
-              fontSize: "1rem",
-              fontWeight: 800,
-              marginTop: "12px",
-              boxShadow: "0 20px 40px rgba(0, 112, 255, 0.2)"
-            }}
+          <button
+            type="submit"
+            className="btn-primary w-full py-5 md:py-6 text-base md:text-lg font-black uppercase tracking-[0.25em] shadow-[0_20px_50px_rgba(0,112,255,0.3)] mt-4 md:mt-6 group relative overflow-hidden"
           >
-            AUTHORIZE ACCESS
+            <span className="relative z-10 font-black">Authorize</span>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
           </button>
         </form>
 
-        <div style={{ marginTop: "40px", textAlign: "center", fontSize: "0.85rem", color: "rgba(255,255,255,0.2)", fontWeight: 600, letterSpacing: "0.05em" }}>
-          SECURED BY SAHAJINK ENCRYPTION
+        <div className="mt-10 md:mt-15 text-center">
+          <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-[var(--border)] to-transparent mb-6"></div>
+          <p className="text-[0.6rem] md:text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-[0.3em] opacity-40">
+            Secure Industrial Protocol v4.0
+          </p>
         </div>
       </div>
+
+      {/* Decorative Orbs */}
+      <div className="absolute -top-20 -left-20 w-64 h-64 bg-[var(--primary)]/10 rounded-full blur-[100px] animate-pulse"></div>
+      <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-[var(--accent)]/10 rounded-full blur-[100px] animate-pulse delay-1000"></div>
     </div>
   );
-}
+};
 
 export default Login;

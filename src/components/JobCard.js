@@ -27,7 +27,7 @@ function JobCard({ job, onDelete, children }) {
       await updateDoc(doc(db, "jobs", job.id), dataToUpdate);
       toast.success("Job updated successfully.");
       setShowEditModal(false);
-      window.location.reload(); 
+      window.location.reload();
     } catch (error) {
       toast.error("Failed to update job.");
     }
@@ -35,8 +35,10 @@ function JobCard({ job, onDelete, children }) {
 
   const getStatusBadge = (status) => {
     const s = status?.toLowerCase();
-    if (s === "completed") return <span className="badge badge-success">● COMPLETED</span>;
-    if (s === "running") return <span className="badge badge-running">◈ RUNNING</span>;
+    if (s === "completed")
+      return <span className="badge badge-success">● COMPLETED</span>;
+    if (s === "running")
+      return <span className="badge badge-running">◈ RUNNING</span>;
     return <span className="badge badge-pending">○ PENDING</span>;
   };
 
@@ -46,150 +48,349 @@ function JobCard({ job, onDelete, children }) {
     return "var(--success)";
   };
 
+  // Body Scroll Lock for Modal
+  useEffect(() => {
+    if (showEditModal || showDeleteModal) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [showEditModal, showDeleteModal]);
+
   return (
     <>
-      <div className="glass-card page-entry" style={{ padding: "32px", marginBottom: "16px", position: "relative", background: "rgba(15, 23, 42, 0.5)" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "32px", alignItems: "start" }}>
-          
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "20px" }}>
-              <h3 style={{ fontSize: "1.6rem", color: "#fff", margin: 0, fontWeight: 800 }}>{job.jobNumber}</h3>
+      <div className="glass-card p-5 md:p-8 mb-4 relative bg-slate-900/50 hover:border-[var(--primary)] group transition-all duration-500">
+        <div className="flex flex-col md:grid md:grid-cols-[1fr_auto] gap-6 md:gap-8 items-start">
+          <div className="w-full">
+            <div className="flex flex-wrap items-center gap-3 mb-5">
+              <h3 className="text-xl md:text-2xl text-white m-0 font-extrabold tracking-tight">
+                {job.jobNumber}
+              </h3>
               {getStatusBadge(job.status)}
-              <span style={{ 
-                fontSize: "0.65rem", 
-                fontWeight: 900, 
-                color: getPriorityColor(job.priority),
-                padding: "4px 10px",
-                background: "rgba(255,255,255,0.03)",
-                border: `1px solid ${getPriorityColor(job.priority)}`,
-                borderRadius: "6px",
-                letterSpacing: "0.1em"
-              }}>{job.priority?.toUpperCase()} PRIORITY</span>
+              <span
+                className="text-[0.6rem] md:text-[0.65rem] font-black px-2.5 py-1 bg-white/5 border rounded-md tracking-widest uppercase"
+                style={{
+                  color: getPriorityColor(job.priority),
+                  borderColor: getPriorityColor(job.priority),
+                }}
+              >
+                {job.priority} Priority
+              </span>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1.8fr 1fr 1fr", gap: "40px" }}>
-              <div style={{ borderLeft: "3px solid var(--primary)", paddingLeft: "20px" }}>
-                <p style={{ margin: 0, fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 900, letterSpacing: "0.1em" }}>Client Company</p>
-                <p style={{ margin: "6px 0 0 0", fontSize: "1.1rem", fontWeight: 700, color: "var(--text-platinum)" }}>{job.clientCompanyName || "Independent"}</p>
-                <p style={{ margin: "2px 0 0 0", fontSize: "0.85rem", color: "var(--text-muted)", fontWeight: 500 }}>{job.clientName}</p>
-              </div>
-              
-              <div>
-                <p style={{ margin: 0, fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 900, letterSpacing: "0.1em" }}>Specifications</p>
-                <p style={{ margin: "6px 0 0 0", fontSize: "1.1rem", fontWeight: 700, color: "var(--text-platinum)" }}>{job.labelSize}</p>
-                <p style={{ margin: "2px 0 0 0", fontSize: "0.9rem", color: "var(--primary)", fontWeight: 800 }}>{job.quantity?.toLocaleString()} UNITS</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10">
+              <div className="border-l-[3px] border-[var(--primary)] pl-4 md:pl-5">
+                <p className="m-0 text-[0.65rem] md:text-[0.7rem] text-[var(--text-muted)] uppercase font-black tracking-widest">
+                  Client Console
+                </p>
+                <p className="mt-1.5 mb-0 text-base md:text-lg font-bold text-[var(--text-platinum)] truncate">
+                  {job.clientCompanyName || "Unregistered Entity"}
+                </p>
+                <p className="mt-0.5 mb-0 text-sm text-[var(--text-muted)] font-medium">
+                  {job.clientName}
+                </p>
               </div>
 
-              <div style={{ textAlign: "right" }}>
-                <p style={{ margin: 0, fontSize: "0.7rem", color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 900, letterSpacing: "0.1em" }}>Date</p>
-                <p style={{ margin: "6px 0 0 0", fontSize: "0.9rem", color: "var(--text-muted)", fontWeight: 600 }}>{new Date(job.createdAt).toLocaleDateString()}</p>
-                <Link to={`/job/${job.id}`} style={{ textDecoration: "none", display: "inline-block", marginTop: "12px", fontSize: "0.8rem", color: "var(--primary)", fontWeight: 900, letterSpacing: "0.05em" }}>VIEW DETAILS →</Link>
+              <div>
+                <p className="m-0 text-[0.65rem] md:text-[0.7rem] text-[var(--text-muted)] uppercase font-black tracking-widest">
+                  Specifications
+                </p>
+                <p className="mt-1.5 mb-0 text-base md:text-lg font-bold text-[var(--text-platinum)]">
+                  {job.labelSize}
+                </p>
+                <p className="mt-0.5 mb-0 text-sm text-[var(--primary)] font-black">
+                  {job.quantity?.toLocaleString()} UNITS
+                </p>
+              </div>
+
+              <div className="md:text-right flex flex-col items-start md:items-end">
+                <p className="m-0 text-[0.65rem] md:text-[0.7rem] text-[var(--text-muted)] uppercase font-black tracking-widest">
+                  Logged Date
+                </p>
+                <p className="mt-1.5 mb-0 text-sm text-[var(--text-muted)] font-semibold">
+                  {new Date(job.createdAt).toLocaleDateString()}
+                </p>
+                <Link
+                  to={`/job/${job.id}`}
+                  className="no-underline inline-block mt-4 text-[0.75rem] text-[var(--primary)] font-black tracking-wider hover:opacity-80 transition-opacity"
+                >
+                  VIEW FULL DETAILS →
+                </Link>
               </div>
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "flex-end" }}>
-            <div className="action-group">
-              <button 
-                onClick={() => setShowEditModal(true)} 
-                className="btn-premium btn-edit"
-                title="Edit Job"
+          <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto mt-4 md:mt-0 pt-6 md:pt-0 border-t md:border-t-0 border-white/5 items-center md:items-end">
+            <div className="flex gap-2 w-full justify-start md:justify-end">
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="btn-premium btn-edit flex-1 md:flex-none justify-center px-4 py-3"
+                title="Modify Config"
               >
-                <span>✎</span> EDIT
+                📝 <span className="hidden sm:inline">EDIT</span>
               </button>
-              <button 
-                onClick={() => setShowDeleteModal(true)} 
-                className="btn-premium btn-delete"
-                title="Delete Job"
+              <button
+                onClick={() => setShowDeleteModal(true)}
+                className="btn-premium btn-delete flex-1 md:flex-none justify-center px-4 py-3"
+                title="Terminate Stream"
               >
-                <span>✖</span> DELETE
+                🗑️ <span className="hidden sm:inline">DELETE</span>
               </button>
             </div>
-            {children}
+            {children && (
+              <div className="w-full pt-4 md:pt-2 border-t md:border-t-0 border-white/5">
+                {children}
+              </div>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Global Modals (Siblings to the card to avoid transform trapping) */}
+      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(2, 6, 23, 0.9)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(20px)" }}>
-          <div className="glass-card" style={{ maxWidth: "450px", padding: "50px", textAlign: "center", border: "1.5px solid var(--danger)", transform: "none", animation: "fade-in-up 0.3s ease" }}>
-            <h2 style={{ color: "var(--danger)", marginBottom: "20px", fontSize: "1.8rem" }}>Delete Job?</h2>
-            <p style={{ color: "var(--text-muted)", marginBottom: "40px", lineHeight: "1.8", fontSize: "1rem" }}>Are you sure you want to delete **{job.jobNumber}**? This action cannot be undone.</p>
-            <div style={{ display: "flex", gap: "12px" }}>
-              <button onClick={() => setShowDeleteModal(false)} style={{ flex: 1, padding: "16px", background: "none", color: "var(--text-main)", border: "1.5px solid var(--border)", borderRadius: "16px", fontWeight: 700, cursor: "pointer" }}>Cancel</button>
-              <button onClick={handleDelete} style={{ flex: 1, padding: "16px", background: "var(--danger)", color: "white", borderRadius: "16px", fontWeight: 700, border: "none", cursor: "pointer" }}>Delete</button>
+        <div className="fixed inset-0 w-full h-full bg-[#020617]/95 z-[9999] flex items-center justify-center backdrop-blur-2xl p-4">
+          <div className="glass-card max-w-[450px] w-full p-8 md:p-12 text-center animate-fade-in-up">
+            <div className="w-20 h-20 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+              <span className="text-4xl">⚠️</span>
+            </div>
+            <h2 className="text-white mb-4 text-2xl md:text-3xl font-black tracking-tight">
+              Delete Job?
+            </h2>
+            <p className="text-[var(--text-muted)] mb-10 text-sm md:text-base font-medium leading-relaxed">
+              This will permanently terminate job{" "}
+              <span className="text-white font-bold">{job.jobNumber}</span>.
+              This action cannot be undone.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 p-4 bg-transparent border-[1.5px] border-[var(--border)] text-white rounded-xl md:rounded-2xl font-bold cursor-pointer hover:bg-white/5 transition-all text-[0.7rem] uppercase tracking-widest"
+              >
+                Keep Record
+              </button>
+              <button
+                onClick={handleDelete}
+                className="btn-primary flex-1 p-4 rounded-xl md:rounded-2xl bg-[var(--danger)] border-none shadow-[0_15px_30px_rgba(239,68,68,0.25)] text-[0.7rem] uppercase tracking-widest font-bold"
+              >
+                Terminate
+              </button>
             </div>
           </div>
         </div>
       )}
 
       {showEditModal && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(2, 6, 23, 0.9)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(20px)" }}>
-          <div className="glass-card" style={{ maxWidth: "800px", width: "95%", padding: "40px", maxHeight: "90vh", overflowY: "auto", transform: "none", animation: "fade-in-up 0.3s ease" }}>
-            <h2 style={{ marginBottom: "32px", color: "var(--primary)", fontSize: "2rem" }}>Edit Job</h2>
-            <form onSubmit={handleEdit} style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
-              
-              <div>
-                <h4 style={{ fontSize: "0.8rem", color: "var(--primary)", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: "20px" }}>Client Details</h4>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase" }}>Company Name</label>
-                    <input type="text" value={editedJob.clientCompanyName} onChange={(e) => setEditedJob({...editedJob, clientCompanyName: e.target.value})} />
+        <div className="fixed inset-0 w-full h-full bg-[#020617]/95 z-[9999] flex items-center justify-center backdrop-blur-2xl p-4">
+          <div className="glass-card max-w-[850px] w-full p-6 md:p-10 max-h-[90vh] overflow-y-auto animate-fade-in-up">
+            <div className="flex justify-between items-center mb-10">
+              <h2 className="text-[var(--primary)] text-xl md:text-3xl font-black tracking-tight uppercase">
+                Edit Configuration
+              </h2>
+              <button
+                onClick={() => setShowEditModal(false)}
+                className="text-[var(--text-muted)] hover:text-white transition-colors text-2xl"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleEdit} className="flex flex-col gap-10">
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-2 h-2 rounded-full bg-[var(--primary)] shadow-[0_0_10px_var(--primary-glow)]"></div>
+                  <h4 className="text-[0.7rem] text-white uppercase tracking-[0.2em] font-black">
+                    Client Profile
+                  </h4>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6">
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Company Entity
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
+                      value={editedJob.clientCompanyName}
+                      onChange={(e) =>
+                        setEditedJob({
+                          ...editedJob,
+                          clientCompanyName: e.target.value,
+                        })
+                      }
+                    />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase" }}>Contact Person</label>
-                    <input type="text" value={editedJob.clientName} onChange={(e) => setEditedJob({...editedJob, clientName: e.target.value})} />
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Contact Authority
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
+                      value={editedJob.clientName}
+                      onChange={(e) =>
+                        setEditedJob({
+                          ...editedJob,
+                          clientName: e.target.value,
+                        })
+                      }
+                      required
+                    />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase" }}>Phone</label>
-                    <input type="tel" value={editedJob.clientPhone} onChange={(e) => setEditedJob({...editedJob, clientPhone: e.target.value})} />
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Comms Stream (Phone)
+                    </label>
+                    <input
+                      type="tel"
+                      className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
+                      value={editedJob.clientPhone}
+                      onChange={(e) =>
+                        setEditedJob({
+                          ...editedJob,
+                          clientPhone: e.target.value,
+                        })
+                      }
+                    />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase" }}>Email</label>
-                    <input type="email" value={editedJob.clientEmail} onChange={(e) => setEditedJob({...editedJob, clientEmail: e.target.value})} />
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Digital Mail (Email)
+                    </label>
+                    <input
+                      type="email"
+                      className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
+                      value={editedJob.clientEmail}
+                      onChange={(e) =>
+                        setEditedJob({
+                          ...editedJob,
+                          clientEmail: e.target.value,
+                        })
+                      }
+                    />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", gridColumn: "span 2" }}>
-                    <label style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase" }}>Address</label>
-                    <input type="text" value={editedJob.clientAddress} onChange={(e) => setEditedJob({...editedJob, clientAddress: e.target.value})} />
+                  <div className="flex flex-col gap-2.5 md:col-span-2">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Geographic Origin (Address)
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
+                      value={editedJob.clientAddress}
+                      onChange={(e) =>
+                        setEditedJob({
+                          ...editedJob,
+                          clientAddress: e.target.value,
+                        })
+                      }
+                    />
                   </div>
                 </div>
-              </div>
+              </section>
 
-              <div>
-                <h4 style={{ fontSize: "0.8rem", color: "var(--accent)", textTransform: "uppercase", letterSpacing: "0.15em", marginBottom: "20px" }}>Specifications</h4>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px" }}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase" }}>Size</label>
-                    <input type="text" value={editedJob.labelSize} onChange={(e) => setEditedJob({...editedJob, labelSize: e.target.value})} />
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-2 h-2 rounded-full bg-[var(--accent)] shadow-[0_0_10px_var(--accent-glow)]"></div>
+                  <h4 className="text-[0.7rem] text-white uppercase tracking-[0.2em] font-black">
+                    Dimensions & Output
+                  </h4>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6">
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Label Framework
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
+                      value={editedJob.labelSize}
+                      onChange={(e) =>
+                        setEditedJob({
+                          ...editedJob,
+                          labelSize: e.target.value,
+                        })
+                      }
+                      required
+                    />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase" }}>Quantity</label>
-                    <input type="number" value={editedJob.quantity} onChange={(e) => setEditedJob({...editedJob, quantity: e.target.value})} />
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Volume Count
+                    </label>
+                    <input
+                      type="number"
+                      className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
+                      value={editedJob.quantity}
+                      onChange={(e) =>
+                        setEditedJob({ ...editedJob, quantity: e.target.value })
+                      }
+                      required
+                    />
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase" }}>Priority</label>
-                    <select value={editedJob.priority} onChange={(e) => setEditedJob({...editedJob, priority: e.target.value})}>
-                      <option value="High">High</option>
-                      <option value="Medium">Medium</option>
-                      <option value="Low">Low</option>
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Protocol Tier
+                    </label>
+                    <select
+                      className="w-full bg-[var(--bg-graphite)] border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none cursor-pointer font-bold appearance-none"
+                      value={editedJob.priority}
+                      onChange={(e) =>
+                        setEditedJob({ ...editedJob, priority: e.target.value })
+                      }
+                    >
+                      <option value="High">Priority Alpha (High)</option>
+                      <option value="Medium">Status Beta (Medium)</option>
+                      <option value="Low">Base Gamma (Low)</option>
                     </select>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                    <label style={{ fontSize: "0.7rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase" }}>Industry</label>
-                    <input type="text" value={editedJob.labelIndustry} onChange={(e) => setEditedJob({...editedJob, labelIndustry: e.target.value})} />
+                  <div className="flex flex-col gap-2.5">
+                    <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                      Sector Class
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-4 rounded-xl focus:border-[var(--primary)] outline-none transition-all font-medium"
+                      value={editedJob.labelIndustry}
+                      onChange={(e) =>
+                        setEditedJob({
+                          ...editedJob,
+                          labelIndustry: e.target.value,
+                        })
+                      }
+                    />
                   </div>
                 </div>
+              </section>
+
+              <div className="flex flex-col gap-2.5">
+                <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                  Operational Directives (Notes)
+                </label>
+                <textarea
+                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-5 rounded-xl focus:border-[var(--primary)] outline-none min-h-[120px] transition-all font-medium resize-none leading-relaxed"
+                  value={editedJob.addNotes}
+                  onChange={(e) =>
+                    setEditedJob({ ...editedJob, addNotes: e.target.value })
+                  }
+                />
               </div>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                <label style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.1em" }}>Notes</label>
-                <textarea value={editedJob.addNotes} onChange={(e) => setEditedJob({...editedJob, addNotes: e.target.value})} style={{ minHeight: "100px" }} />
-              </div>
-
-              <div style={{ display: "flex", gap: "12px", marginTop: "10px" }}>
-                <button type="button" onClick={() => setShowEditModal(false)} style={{ flex: 1, padding: "18px", background: "none", border: "1.5px solid var(--border)", color: "var(--text-main)", borderRadius: "18px", fontWeight: 700, cursor: "pointer" }}>Cancel</button>
-                <button type="submit" className="btn-primary" style={{ flex: 1, padding: "18px", borderRadius: "18px" }}>Save Changes</button>
+              <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setShowEditModal(false)}
+                  className="flex-1 p-5 bg-transparent border-[1.5px] border-[var(--border)] text-white rounded-xl md:rounded-2xl font-bold cursor-pointer hover:bg-white/5 transition-all text-[0.7rem] uppercase tracking-widest"
+                >
+                  Abandon
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary flex-1 p-5 rounded-xl md:rounded-2xl font-black text-[0.7rem] uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(0,112,255,0.25)]"
+                >
+                  Save Configuration
+                </button>
               </div>
             </form>
           </div>
