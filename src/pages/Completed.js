@@ -3,7 +3,6 @@ import { db } from "../firebase/config";
 import { collection, onSnapshot, query, orderBy } from "firebase/firestore";
 import JobCard from "../components/JobCard";
 import Pagination from "../components/Pagination";
-import NoJobComplate from "../assets/no-job-complate.svg";
 
 function Completed() {
   const [jobs, setJobs] = useState([]);
