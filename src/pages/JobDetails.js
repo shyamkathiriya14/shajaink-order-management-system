@@ -273,7 +273,7 @@ function JobDetails() {
             {job.imageUrl ? (
               <div className="rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group">
                 <a
-                  href={job.imageUrl}
+                  // href={job.imageUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                 >

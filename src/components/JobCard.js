@@ -11,6 +11,8 @@ function JobCard({ job, onDelete, children }) {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [editedJob, setEditedJob] = useState({ ...job });
+  const [editImageFile, setEditImageFile] = useState(null);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const handleDelete = async () => {
     try {
@@ -25,14 +27,39 @@ function JobCard({ job, onDelete, children }) {
 
   const handleEdit = async (e) => {
     e.preventDefault();
+    setIsUpdating(true);
     try {
+      let finalImageUrl = editedJob.imageUrl;
+
+      if (editImageFile) {
+        if (editImageFile.size > 700 * 1024) {
+          toast.error("Image too large (Max 700KB)");
+          setIsUpdating(false);
+          return;
+        }
+
+        finalImageUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = (err) => reject(err);
+          reader.readAsDataURL(editImageFile);
+        });
+      }
+
       const { id, ...dataToUpdate } = editedJob;
-      await updateDoc(doc(db, "jobs", job.id), dataToUpdate);
+      await updateDoc(doc(db, "jobs", job.id), {
+        ...dataToUpdate,
+        imageUrl: finalImageUrl,
+      });
+
       toast.success("Job updated successfully.");
       setShowEditModal(false);
       window.location.reload();
     } catch (error) {
+      console.error("Update error:", error);
       toast.error("Failed to update job.");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -395,32 +422,70 @@ function JobCard({ job, onDelete, children }) {
                 </div>
               </section>
 
-              <div className="flex flex-col gap-2.5">
-                <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
-                  Client Requirement & Notes
-                </label>
-                <textarea
-                  className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-5 rounded-xl focus:border-[var(--primary)] outline-none min-h-[120px] transition-all font-medium resize-none leading-relaxed"
-                  value={editedJob.addNotes}
-                  onChange={(e) =>
-                    setEditedJob({ ...editedJob, addNotes: e.target.value })
-                  }
-                />
+              <div className="flex flex-col gap-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-2 rounded-full bg-[var(--success)] shadow-[0_0_10px_var(--success-glow)]"></div>
+                  <h4 className="text-[0.7rem] text-white uppercase tracking-[0.2em] font-black">
+                    Attachments
+                  </h4>
+                </div>
+
+                <div className="flex flex-col gap-4">
+                  <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                    Update Job Image
+                  </label>
+                  <div className="relative group cursor-pointer">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setEditImageFile(e.target.files[0])}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    <div className="p-6 border-2 border-dashed border-[var(--border)] rounded-xl text-center bg-white/[0.01] group-hover:bg-white/[0.03] group-hover:border-[var(--primary)] transition-all">
+                      <span className="text-3xl block mb-2 opacity-40">📸</span>
+                      <p className="text-[var(--text-muted)] font-medium text-xs">
+                        {editImageFile
+                          ? `New file selected: ${editImageFile.name}`
+                          : "Change Job Image"}
+                      </p>
+                    </div>
+                  </div>
+                  {editedJob.imageUrl && !editImageFile && (
+                    <p className="text-[0.6rem] text-[var(--primary)] uppercase font-bold tracking-widest mt-1">
+                      Current image will be kept
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-2.5">
+                  <label className="text-[0.65rem] text-[var(--text-muted)] font-black uppercase tracking-widest ml-1">
+                    Client Requirement & Notes
+                  </label>
+                  <textarea
+                    className="w-full bg-white/5 border-[1.5px] border-[var(--border)] text-white p-5 rounded-xl focus:border-[var(--primary)] outline-none min-h-[120px] transition-all font-medium resize-none leading-relaxed"
+                    value={editedJob.addNotes}
+                    onChange={(e) =>
+                      setEditedJob({ ...editedJob, addNotes: e.target.value })
+                    }
+                  />
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 mt-6">
                 <button
                   type="button"
+                  disabled={isUpdating}
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 p-5 bg-transparent border-[1.5px] border-[var(--border)] text-white rounded-xl md:rounded-2xl font-bold cursor-pointer hover:bg-white/5 transition-all text-[0.7rem] uppercase tracking-widest"
+                  className="flex-1 p-5 bg-transparent border-[1.5px] border-[var(--border)] text-white rounded-xl md:rounded-2xl font-bold cursor-pointer hover:bg-white/5 transition-all text-[0.7rem] uppercase tracking-widest disabled:opacity-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="btn-primary flex-1 p-5 rounded-xl md:rounded-2xl font-black text-[0.7rem] uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(0,112,255,0.25)]"
+                  disabled={isUpdating}
+                  className="btn-primary flex-1 p-5 rounded-xl md:rounded-2xl font-black text-[0.7rem] uppercase tracking-[0.2em] shadow-[0_20px_40px_rgba(0,112,255,0.25)] disabled:opacity-50"
                 >
-                  Save Job
+                  {isUpdating ? "Updating..." : "Save Job"}
                 </button>
               </div>
             </form>
