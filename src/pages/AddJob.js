@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { db, storage } from "../firebase/config";
+import { db } from "../firebase/config";
 import { collection, addDoc, getDocs } from "firebase/firestore";
-import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import DownArrow from "../assets/down-arrow.svg";
@@ -71,27 +70,27 @@ function AddJob() {
     try {
       let imageUrl = "";
       if (imageFile) {
-        const storageRef = ref(
-          storage,
-          `job-images/${jobNumber}_${imageFile.name}`,
-        );
-        const uploadTask = uploadBytesResumable(storageRef, imageFile);
-
-        imageUrl = await new Promise((resolve, reject) => {
-          uploadTask.on(
-            "state_changed",
-            (snapshot) => {
-              const progress =
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-              setUploadProgress(progress);
-            },
-            (error) => reject(error),
-            () => {
-              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) =>
-                resolve(downloadURL),
-              );
-            },
+        // Limit check for Firestore (1MB document limit)
+        if (imageFile.size > 700 * 1024) {
+          toast.error(
+            "Image is too large. Please use an image smaller than 700KB.",
           );
+          setIsSubmitting(false);
+          return;
+        }
+
+        console.log("Converting image to Base64...", imageFile.name);
+        imageUrl = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => {
+            console.log("Image converted to Base64 successfully.");
+            resolve(reader.result);
+          };
+          reader.onerror = (error) => {
+            console.error("Conversion failed:", error);
+            reject(new Error("Failed to process image file."));
+          };
+          reader.readAsDataURL(imageFile);
         });
       }
 
@@ -368,7 +367,9 @@ function AddJob() {
           >
             <span className="relative z-10">
               {isSubmitting
-                ? `Uploading (${Math.round(uploadProgress)}%)...`
+                ? imageFile
+                  ? "Processing Image..."
+                  : "Adding Job..."
                 : "Add Job"}
             </span>
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>

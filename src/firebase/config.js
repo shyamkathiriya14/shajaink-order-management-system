@@ -7,9 +7,10 @@ const firebaseConfig = {
   authDomain: "label-production-system.firebaseapp.com",
   projectId: "label-production-system",
   storageBucket: "label-production-system.firebasestorage.app",
+  // storageBucket: "label-production-system.appspot.com",
   messagingSenderId: "992250303597",
   appId: "1:992250303597:web:0426b2857588cca8429b64",
-  measurementId: "G-8CQ2FW8759"
+  measurementId: "G-8CQ2FW8759",
 };
 
 const app = initializeApp(firebaseConfig);
