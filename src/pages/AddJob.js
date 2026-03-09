@@ -20,7 +20,6 @@ function AddJob() {
   const [addNotes, setAddNotes] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
