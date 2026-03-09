@@ -272,17 +272,11 @@ function JobDetails() {
 
             {job.imageUrl ? (
               <div className="rounded-2xl md:rounded-3xl overflow-hidden border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group">
-                <a
-                  // href={job.imageUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
                   <img
                     src={job.imageUrl}
                     alt="Job Blueprint"
                     className="w-full h-auto object-cover group-hover:scale-105 transition-transform duration-700"
                   />
-                </a>
               </div>
             ) : (
               <div className="rounded-2xl md:rounded-3xl border-2 border-dashed border-white/5 h-[300px] md:h-[400px] lg:h-[500px] flex flex-col items-center justify-center bg-white/[0.02] text-center p-8 md:p-12">
